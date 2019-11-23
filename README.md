@@ -10,7 +10,7 @@
 
 ## Installation
 
-1 - Télécharger l'open source [DiscordBot.js Open Source](https://github.com/AlexAnimateMP4/DiscordBot.js/archive/master.zip)
+1 - Télécharger l'open source [DiscordBot.js Open Source](https://github.com/DiscordBotJs/DiscordBot.Js/archive/master.zip)
 
 2 - Extractez le fichier sur le bureau.
 
