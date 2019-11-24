@@ -145,9 +145,14 @@ client.on("message", message => {
             .setThumbnail('' + client.user.displayAvatarURL + '')
             .setTitle('Bot Info', true)
             .addField("Nom du bot", `${client.user}`, true)
-            .addField("ID", `${client.user.id}`, true)
-            .addField(`Crée le`, `${client.user.createdAt.toDateString()}`, true)
-            .addField("Status", `${client.user.presence.status}`, true)
+            .addField("ID du bot", `${client.user.id}`, true)
+            .addField("Crée le", `${client.user.createdAt.toDateString()}`, true)
+            .addField("Sur", `${client.guilds.size} Serveurs`, true)
+            .addField("Developpeur", `Alex Animate Mp4#2361`, true)
+            .addField("Site web", `https://discordbotjs.github.io/DiscordBot.js-Website.io/`, true)
+            .addField("Serveur Support", `https://discordapp.com/invite/UqUsr5x`, true)
+            .addField("Dépôts Github", `https://github.com/DiscordBotJs/DiscordBot.Js`, true)
+            .addField(`Vidéo Présentation`, `https://youtu.be/cIFhTOgT4Oc`, true)
             .setTimestamp()
             .setFooter('Bot info Release Version');
         message.channel.send(embed);
@@ -209,6 +214,17 @@ client.on("message", message => {
             .setTimestamp()
             .setFooter('Role info Release Version');
         message.channel.send(embed);
+    }
+});
+
+/*Server List*/
+client.on("message", message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
+    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "server-list") {
+        message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres`));
     }
 });
 
@@ -689,6 +705,7 @@ client.on("message", message => {
             .addField(`${CONFIG.prefix}bot-info`, `Affiche les informations du bot`)
             .addField(`${CONFIG.prefix}channel-info`, `Affiche les informations d'un salon`)
             .addField(`${CONFIG.prefix}role-info`, `Affiche les informations d'un rôle`)
+	    .addField(`${CONFIG.prefix}server-list`, `Affiche les serveurs où le bot est connecté`)
             .addField(`${CONFIG.prefix}kick`, `Commande permettant de kicker un membre`)
             .addField(`${CONFIG.prefix}ban`, `Commande permettant de bannir un memre`)
             .addField(`${CONFIG.prefix}report`, `Commande permettant de reporter un membre`)
