@@ -49,6 +49,29 @@ const getDefaultChannel = (guild) => {
 	 .first();
 }
 
+function timeConverter(timestamp)
+{
+        var a = new Date(timestamp);
+        var tabMois = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        var annee = a.getFullYear();
+        var mois = tabMois[a.getMonth()];
+        var date = a.getDate();
+        var heure = a.getHours();
+        if(heure <= 10) {
+            heure = `0${a.getHours()}`
+        }
+        var min = a.getMinutes();
+        if(min <= 10) {
+            min = `0${a.getMinutes()}`
+        }
+        var sec = a.getSeconds();
+        if(sec <= 10) {
+            sec = `0${a.getSeconds()}`
+        }
+        var time = + date + ' ' + mois + ' ' + annee + ' à ' + heure + 'h' + min + ':' + sec ;
+        return time;
+}
+
 if (CONFIG.botToken === '')
     throw new Error("La propriété 'botToken' n'est pas définie dans le fichier config.js. Fais-le s'il te plaît !");
 
@@ -99,8 +122,8 @@ client.on("message", message => {
             .addField("Total de membres", `${message.guild.memberCount - message.guild.members.filter(m => m.user.bot).size}`, true)
             .addField("Bots", `${message.guild.members.filter(m => m.user.bot).size}`, true)
             .addField("En ligne", `${online.size}`, true)
-            .addField(`Crée le`, `${message.guild.createdAt.toDateString()}`, true)
-            .addField(`Vous avez rejoind le`, `${message.member.joinedAt.toDateString()}`, true)
+            .addField(`Crée le`, `${timeConverter(message.guild.createdAt)}`, true)
+            .addField(`Vous avez rejoind le`, `${timeConverter(message.member.joinedAt)}`, true)
             .setTimestamp()
             .setFooter('Server info Release Version');
         message.channel.send(embed);
@@ -122,8 +145,8 @@ client.on("message", message => {
             .setTitle('Utlisateur Info')
             .addField("Pseudo", `${member}`, true)
             .addField("ID", `${member.id}`, true)
-            .addField("Crée le", `${member.user.createdAt.toDateString()}`, true)
-            .addField("Rejoind le", `${member.joinedAt.toDateString()}`, true)
+            .addField("Crée le", `${timeConverter(member.user.createdAt)}`, true)
+            .addField("Rejoind le", `${timeConverter(member.joinedAt)}`, true)
             .addField("Status", `${member.user.presence.status}`, true)
             .addField("Status de jeux", `${member.presence.game ? member.presence.game.name : 'Aucun'}`, true)
             .addField("Rôles", `${member.roles.map(roles => `${roles.name}`).join(', ')}`, true)
@@ -146,7 +169,7 @@ client.on("message", message => {
             .setTitle('Bot Info', true)
             .addField("Nom du bot", `${client.user}`, true)
             .addField("ID du bot", `${client.user.id}`, true)
-            .addField("Crée le", `${client.user.createdAt.toDateString()}`, true)
+            .addField("Crée le", `${timeConverter(client.user.createdAt)}`, true)
             .addField("Sur", `${client.guilds.size} Serveurs`, true)
             .addField("Developpeur", `Alex Animate Mp4#2361`, true)
             .addField("Site web", `https://discordbotjs.github.io/DiscordBot.js-Website.io/`, true)
@@ -180,7 +203,7 @@ client.on("message", message => {
             .setTitle('Channel Info', true)
             .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name, true)
             .addField("Id", channel.id, true)
-            .addField("Crée le", channel.createdAt.toDateString(), true)
+            .addField("Crée le", timeConverter(channel.createdAt), true)
             .addField("NSFW", channel.nsfw ? 'Oui' : 'Non', true)
             .addField("Catégories", channel.parent ? channel.parent.name : 'Aucun', true)
             .addField("Type", channelTypes[channel.type], true)
@@ -207,7 +230,7 @@ client.on("message", message => {
             .setTitle('Channel Info', true)
             .addField("Nom du rôle", role.name, true)
             .addField("Id", role.id, true)
-            .addField("Crée le", role.createdAt.toDateString(), true)
+            .addField("Crée le", timeConverter(role.createdAt), true)
             .addField("Epinglés", role.hoist ? 'Oui' : 'Non', true)
             .addField("Mentionable", role.mentionable ? 'Oui' : 'Non', true)
             .addField("Couleur", role.color, true)
