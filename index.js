@@ -978,15 +978,20 @@ client.on('channelCreate', async (channel, message) => {
         category: 'Catégorie',
         unknown: 'Inconnue',
     };
+    let logs = await channel.guild.fetchAuditLogs({type: 10});
+    let entry = logs.entries.first();
 	const embed = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
-		  .setTitle('Logs Salon Ajoutés')
-		  .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
+	  .setColor(`${CONFIG.colorembed}`)
+	  .setTitle('Logs Salon Ajoutés')
+	  .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
           .addField("ID", channel.id)
-          .addField("Crée le", channel.createdAt.toString())
+          .addField("Crée le", timeConverter(channel.createdAt))
           .addField("NSFW", channel.nsfw ? 'Oui' : 'Non')
           .addField("Catégories", channel.parent ? channel.parent.name : 'Aucun')
           .addField("Type", channelTypes[channel.type])
+          .addField("Auteur", entry.executor)
+          .addField("Auteur ID", entry.executor.id)
+          //.addField("Raison", entry.reason || "Aucun")
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = channel.guild.channels.find(channel => channel.name === "📄logs");
@@ -995,7 +1000,7 @@ client.on('channelCreate', async (channel, message) => {
         			LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return message.reply("Impossible de trouver le salon Logs !");
+        			if (!LogsChannelID) return message.channel.send("Impossible de trouver le salon Logs !");
         				LogsChannelID.send(embed)
         		}
 })
@@ -1009,15 +1014,20 @@ client.on('channelDelete', async (channel, message) => {
         category: 'Catégorie',
         unknown: 'Inconnue',
     };
+    let logs = await channel.guild.fetchAuditLogs({type: 12});
+    let entry = logs.entries.first();
 	const embed = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
-		  .setTitle('Logs Salon Supprimés')
-		  .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
+	  .setColor(`${CONFIG.colorembed}`)
+          .setTitle('Logs Salon Supprimés')
+	  .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
           .addField("ID", channel.id)
-          .addField("Crée le", channel.createdAt.toString())
+          .addField("Crée le", timeConverter(channel.createdAt))
           .addField("NSFW", channel.nsfw ? 'Oui' : 'Non')
           .addField("Catégories", channel.parent ? channel.parent.name : 'Aucun')
           .addField("Type", channelTypes[channel.type])
+          .addField("Topic", channel.topic || "Aucun")
+          .addField("Auteur", entry.executor)
+          .addField("Auteur ID", entry.executor.id)
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = channel.guild.channels.find(channel => channel.name === "📄logs");
@@ -1027,6 +1037,30 @@ client.on('channelDelete', async (channel, message) => {
         		}
         		else if(!LogsChannel) {
         			if (!LogsChannelID) return message.reply("Impossible de trouver le salon Logs !");
+        				LogsChannelID.send(embed)
+        		}
+})
+
+client.on('guildBanAdd', async (guild, user) => {
+    let logs = await guild.fetchAuditLogs({type: 22});
+    let entry = logs.entries.first();
+	const embed = new Discord.RichEmbed()
+	  .setColor(`${CONFIG.colorembed}`)
+          .setTitle('Logs Membre Bannie')
+	  .addField("Membre", user)
+          .addField("Membre ID", user.id)
+          .addField("Auteur", entry.executor)
+          .addField("Auteur ID", entry.executor.id)
+          .addField("Raison", entry.reason || "Aucun")
+		  .setTimestamp()
+		  .setFooter('Logs Beta Version');
+		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
+        	  const LogsChannelID = guild.channels.get(CONFIG.logs)
+        		if (LogsChannel) {
+        			LogsChannel.send(embed)
+        		}
+        		else if(!LogsChannel) {
+        			if (!LogsChannelID) return user.reply("Impossible de trouver le salon Logs !");
         				LogsChannelID.send(embed)
         		}
 })
