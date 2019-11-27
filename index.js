@@ -746,6 +746,7 @@ client.on("message", message => {
             .addField(`${CONFIG.prefix}channel-info`, `Affiche les informations d'un salon`)
             .addField(`${CONFIG.prefix}role-info`, `Affiche les informations d'un rôle`)
 	    .addField(`${CONFIG.prefix}server-list`, `Affiche les serveurs où le bot est connecté`)
+	    .addField(`${CONFIG.prefix}server-invite`, `Crée une invitation pour le serveur`)
             .addField(`${CONFIG.prefix}kick`, `Commande permettant de kicker un membre`)
             .addField(`${CONFIG.prefix}ban`, `Commande permettant de bannir un memre`)
             .addField(`${CONFIG.prefix}report`, `Commande permettant de reporter un membre`)
