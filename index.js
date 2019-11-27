@@ -566,24 +566,6 @@ client.on("message", async message => {
   }
 });
 
-/*Discord Invite*/
-client.on("message", message => {
-	  if(message.author.bot) return;
-	  if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	  const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
-      const command = args.shift().toLowerCase();
-	  if(command === "discord-invite") {
-		if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
-    return message.reply("Désolé, Vous n'avez pas les permissions !");
-    if(message.guild.id === "611526755374727178")
-            message.channel.send(`Lien d'invitation du serveur: https://discord.gg/xuVc8qD`);
-    else if(message.guild.id === "606383442124603393")
-            message.channel.send(`Lien d'invitation du serveur: https://discord.gg/nS4F33`);
-    else
-            message.reply(`Le serveur n'est pas définie dans la base de donnée !`)
-	}
-});
-
 /*Ping*/
 client.on("message", message => {
 	if(message.author.bot) return;
@@ -746,14 +728,13 @@ client.on("message", message => {
             .addField(`${CONFIG.prefix}channel-info`, `Affiche les informations d'un salon`)
             .addField(`${CONFIG.prefix}role-info`, `Affiche les informations d'un rôle`)
 	    .addField(`${CONFIG.prefix}server-list`, `Affiche les serveurs où le bot est connecté`)
-	    .addField(`${CONFIG.prefix}server-invite`, `Crée une invitation pour le serveur`)
+	    .addField(`${CONFIG.prefix}server-invite`, `Commande permettant de générer un lien d'invitation du serveur`)
             .addField(`${CONFIG.prefix}kick`, `Commande permettant de kicker un membre`)
             .addField(`${CONFIG.prefix}ban`, `Commande permettant de bannir un memre`)
             .addField(`${CONFIG.prefix}report`, `Commande permettant de reporter un membre`)
             .addField(`${CONFIG.prefix}mute`, `Commande permettant de mettre en soudrine un membre`)
             .addField(`${CONFIG.prefix}unmute`, `Commande permettant d'enlever sourdine d'un membre`)
             .addField(`${CONFIG.prefix}clear`, `Commande permettant de supprimer des messsages`)
-            .addField(`${CONFIG.prefix}discord-invite`, `Commande permettant de générer un lien d'invitation du serveur`)
             .addField(`${CONFIG.prefix}ping`, `Commande permettant d'afficher le ping`)
             .addField(`${CONFIG.prefix}say`, `Commande permettant de faire parler le bot`)
             .addField(`${CONFIG.prefix}say-markdown`, `Commande permettant de faire parler le bot avec les markdown de discord`)
