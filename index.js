@@ -546,6 +546,57 @@ client.on("message", async message => {
 		  }
 });
 
+/*Bot Vote*/
+client.on("message", message => {
+	  if(message.author.bot) return;
+	  if(message.content.indexOf(CONFIG.prefix) !== 0) return;
+	  const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+      const command = args.shift().toLowerCase();
+	  if(command === "bot-vote") {
+        const embed = new Discord.RichEmbed()
+        .setColor(`${CONFIG.colorembed}`)
+        .setTitle(`Voter pour DiscordBot.Js`)
+        .setDescription(`Voter sur top.gg: https://top.gg/bot/629968935709835284/vote`)
+        message.channel.send(embed);
+	}
+});
+
+/*Pierre, Feuille, Ciseaux*/
+client.on("message", (message) => {
+    if(message.author.bot) return;
+    if(message.content.indexOf(CONFIG.prefix) !== 0) return;
+    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if(command === "chifoumi") {
+        let rps = ["ciseaux", "feuille", "pierre"];
+let i;
+if(!rps.includes(args[0])) return message.reply("S'il vous plaît, choisisez soit Pierre, Feuille ou Ciseaux.");
+if(args[0].includes("pierre")) {
+i = 2;
+}
+if(args[0].includes("feuille")) {
+i = 1;
+}
+if(args[0].includes("ciseaux")) {
+i = 0;
+}
+if(rps[i]) {
+let comp = Math.floor((Math.random() * 3) + 1);
+let comp_res = parseInt(comp) - parseInt("1");
+let comp_val = rps[parseInt(comp_res)];
+  if(i === comp_res) {
+    return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, il y a égalités.\nVous voulez réessayer ?`); 
+  }
+  if(i > comp_res) {
+    return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai gagné !\nBien joué.`);
+  } 
+  if(i < comp_res) {
+    return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai perdu !\nFélicitations pour avoir gagné !`);
+  }
+}
+  }
+});
+
 /*Clear*/
 client.on("message", async message => {
 	if(message.author.bot) return;
@@ -734,6 +785,8 @@ client.on("message", message => {
             .addField(`${CONFIG.prefix}report`, `Commande permettant de reporter un membre`)
             .addField(`${CONFIG.prefix}mute`, `Commande permettant de mettre en soudrine un membre`)
             .addField(`${CONFIG.prefix}unmute`, `Commande permettant d'enlever sourdine d'un membre`)
+	    .addField(`${CONFIG.prefix}bot-vote`, `Commande permettant de voter pour DiscordBot.Js`)
+	    .addField(`${CONFIG.prefix}chifoumi`, `Commande permettant de jouer aux chifoumi`)
             .addField(`${CONFIG.prefix}clear`, `Commande permettant de supprimer des messsages`)
             .addField(`${CONFIG.prefix}ping`, `Commande permettant d'afficher le ping`)
             .addField(`${CONFIG.prefix}say`, `Commande permettant de faire parler le bot`)
