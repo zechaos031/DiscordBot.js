@@ -251,6 +251,23 @@ client.on("message", message => {
     }
 });
 
+/*Server Invite*/
+client.on("message", async message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
+    if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
+	  return message.reply("Désolé, Vous n'avez pas les permissions !");
+    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    const invite = await message.channel.createInvite({
+        maxAge: 0,
+        maxUses: 0
+    })
+    if (command === "server-invite") {
+        message.channel.send(`Lien d'invitation: ${invite}`);
+    }
+});
+
 /*Kick*/
 client.on("message", async message => {
 	if(message.author.bot) return;
@@ -1057,12 +1074,38 @@ client.on('guildBanAdd', async (guild, user) => {
 		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
         	  const LogsChannelID = guild.channels.get(CONFIG.logs)
         		if (LogsChannel) {
-        			LogsChannel.send(embed)
+        			    setTimeout(function(){
+                        LogsChannel.send(embed)
+                        }, 1000);
         		}
         		else if(!LogsChannel) {
         			if (!LogsChannelID) return user.reply("Impossible de trouver le salon Logs !");
-        				LogsChannelID.send(embed)
+                        LogsChannelID.send(embed)
+                }
+})
+
+client.on('guildBanRemove', async (guild, user) => {
+    let logs = await guild.fetchAuditLogs({type: 23});
+    let entry = logs.entries.first();
+	const embed = new Discord.RichEmbed()
+	  .setColor(`${CONFIG.colorembed}`)
+          .setTitle('Logs Membre Débannie')
+	  .addField("Membre", user)
+          .addField("Membre ID", user.id)
+          .addField("Auteur", entry.executor)
+          .addField("Auteur ID", entry.executor.id)
+          .addField("Raison", entry.reason || "Aucun")
+		  .setTimestamp()
+		  .setFooter('Logs Beta Version');
+		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
+        	  const LogsChannelID = guild.channels.get(CONFIG.logs)
+        		if (LogsChannel) {
+                    LogsChannel.send(embed)
         		}
+        		else if(!LogsChannel) {
+                    if (!LogsChannelID) return user.reply("Impossible de trouver le salon Logs !");
+                        LogsChannelID.send(embed)
+                }
 })
 
 /*Poll*/
@@ -1893,4 +1936,3 @@ client.on("message", message => {
     message.channel.send(embedpollhelp)
 }
 });
-
