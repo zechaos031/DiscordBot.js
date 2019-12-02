@@ -7,6 +7,7 @@ module.exports = {
 	logs: "", // Logs Channel ID
 	discordinvite: "discord.gg/invite/UqUsr5x", // Invitation du serveur
 	colorembed: "#7289D9", // Couleur du l'embed
+	picturewelcomeleave: "https://i.imgur.com/2rNY0D1.png", // Image des messages Welcome et Leave
 	// Reaction Role
 	deleteSetupCMD: false, // Si cela est activé la commande sera supprimé après utilisation ** fortement déconseillé **
 	initialMessage: `**Réagissez aux messages ci-dessous pour recevoir le rôle associé. Si vous souhaitez supprimer le rôle, supprimez simplement votre réaction !**`, // Message par défaut de l'embed
