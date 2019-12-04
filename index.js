@@ -225,7 +225,7 @@ client.on("guildMemberRemove", async member =>{
     const channel = getDefaultChannel(member.guild);
     const name = member.displayName.length > 13 ? member.displayName.substring(0, 13) + "..." : member.displayName;
     const server = member.guild.name.length > 21 ? member.guild.name.substring(0, 21) + "..." : member.guild.name;
-    const memberCount = membercountar.length > 8 ? membercountar.substring(0, 8) + "..." : membercountar;
+    const memberCount = member.guild.memberCount.length > 8 ? member.guild.memberCount.substring(0, 8) + "..." : member.guild.memberCount;
 	const canvas = Canvas.createCanvas(700, 250);
 	const ctx = canvas.getContext('2d');
 
