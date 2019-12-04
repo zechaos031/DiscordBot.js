@@ -93,6 +93,7 @@ client.on('error', console.error);
 
 /*Welcome Messages*/
 client.on("guildMemberAdd", member =>{
+	if(member.guild.id === "264445053596991498") return;
 	let embed = new Discord.RichEmbed()
   	  .setColor(`${CONFIG.colorembed}`)
 	  .setThumbnail('' + member.user.displayAvatarURL + '')
@@ -105,6 +106,7 @@ client.on("guildMemberAdd", member =>{
 
 /*Leave Messages*/
 client.on("guildMemberRemove", member =>{
+	if(member.guild.id === "264445053596991498") return;
   let embed = new Discord.RichEmbed()
 	  .setColor(`${CONFIG.colorembed}`)
   	  .setThumbnail('' + member.user.displayAvatarURL + '')
