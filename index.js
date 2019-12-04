@@ -51,18 +51,6 @@ const getDefaultChannel = (guild) => {
 	 .first();
 }
 
-const applyText = (canvas, text) => {
-	const ctx = canvas.getContext('2d');
-
-	let fontSize = 70;
-
-	do {
-		ctx.font = `${fontSize -= 10}px sans-serif`;
-	} while (ctx.measureText(text).width > canvas.width - 300);
-
-	return ctx.font;
-};
-
 function timeConverter(timestamp)
 {
         var a = new Date(timestamp);
@@ -91,15 +79,46 @@ if (CONFIG.botToken === '')
 
 client.on('error', console.error);
 
-/*Welcome Messages*/
-client.on("guildMemberAdd", member =>{
-	if(member.guild.id === "264445053596991498") return;
-	let embed = new Discord.RichEmbed()
-  	  .setColor(`${CONFIG.colorembed}`)
-	  .setThumbnail('' + member.user.displayAvatarURL + '')
-	  .addField('Bienvenue **' + member.user.username + '**', 'Dans ' + member.guild.name + '')
-      .addField('On est maintenant ' + member.guild.memberCount + ' membres !', 'Amusez vous bien :wink:', true)
-      var message_aléatoire = Math.round(Math.random()*30);
+/*Welcome Message*/
+client.on('guildMemberAdd', async member => {
+    if(member.guild.id === "264445053596991498") return;
+	const channel = getDefaultChannel(member.guild);
+    const name = member.displayName.length > 20 ? member.displayName.substring(0, 20) + "..." : member.displayName;
+    const server = member.guild.name.length > 11 ? member.guild.name.substring(0, 11) + "..." : member.guild.name;
+    const memberCount = member.guild.memberCount.length > 8 ? member.guild.memberCount.substring(0, 8) + "..." : member.guild.memberCount;
+	const canvas = Canvas.createCanvas(700, 250);
+	const ctx = canvas.getContext('2d');
+
+	const background = await Canvas.loadImage(`${CONFIG.picturewelcomeleave}`);
+	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+	ctx.strokeStyle = '#74037b';
+	ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+	ctx.font = '28px sans-serif';
+	ctx.fillStyle = '#ffffff';
+	ctx.fillText(`Bienvenue dans ${server},`, canvas.width / 2.5, canvas.height / 3.5);
+
+	ctx.font = '28px sans-serif';
+	ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${name}#${member.user.discriminator}`, canvas.width / 2.5, canvas.height / 1.8);
+    
+    ctx.font = '28px sans-serif';
+	ctx.fillStyle = '#ffffff';
+	ctx.fillText(`On est ${memberCount} membres !`, canvas.width / 2.5, canvas.height / 1.3);
+
+	ctx.beginPath();
+	ctx.arc(125, 125, 100, 0, Math.PI * 2, true);
+	ctx.closePath();
+	ctx.clip();
+
+	const { body: buffer } = await snekfetch.get(member.user.displayAvatarURL);
+	const avatar = await Canvas.loadImage(buffer);
+	ctx.drawImage(avatar, 25, 25, 200, 200);
+
+    const attachment = new Discord.Attachment(canvas.toBuffer(), 'welcome-image.png');
+    
+    var message_aléatoire = Math.round(Math.random()*30);
     var reponse;
     if(message_aléatoire == 0){
         message_aléatoire = `Bienvenue ${member}. ${client.user} t'accueil avec enthousiasme !`;
@@ -195,22 +214,48 @@ client.on("guildMemberAdd", member =>{
         message_aléatoire = `Où est ${member} ? Dans le serveur !`;
     }
     const message_bienvenue_aléatoire = message_aléatoire;
-	  const channel = getDefaultChannel(member.guild);
-	  channel.send(`${message_bienvenue_aléatoire}`, embed);
-	  console.log(`${member.user.username}`, "est arrivés dans " + `${member.guild.name}`)
+
+    channel.send(`${message_bienvenue_aléatoire}`, attachment);
+    console.log(`${member.user.username}`, "est arrivés dans " + `${member.guild.name}`)
 });
 
 /*Leave Messages*/
-client.on("guildMemberRemove", member =>{
-	if(member.guild.id === "264445053596991498") return;
-  let embed = new Discord.RichEmbed()
-	  .setColor(`${CONFIG.colorembed}`)
-  	  .setThumbnail('' + member.user.displayAvatarURL + '')
-	  .addField(':cry: **' + member.user.username + '** a quitté ' + member.guild.name + '', 'On est maintenant ' + member.guild.memberCount + ' membres !')
-	  const channel = getDefaultChannel(member.guild);
-	  channel.send(embed);
-	  console.log(`${member.user.username}` + " a quitté " + `${member.guild.name}`)
-	  dl.Delete(member.user.id)
+client.on("guildMemberRemove", async member =>{
+    if(member.guild.id === "264445053596991498") return;
+    const channel = getDefaultChannel(member.guild);
+    const name = member.displayName.length > 13 ? member.displayName.substring(0, 13) + "..." : member.displayName;
+    const server = member.guild.name.length > 21 ? member.guild.name.substring(0, 21) + "..." : member.guild.name;
+    const memberCount = membercountar.length > 8 ? membercountar.substring(0, 8) + "..." : membercountar;
+	const canvas = Canvas.createCanvas(700, 250);
+	const ctx = canvas.getContext('2d');
+
+	const background = await Canvas.loadImage(`${CONFIG.picturewelcomeleave}`);
+	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+	ctx.strokeStyle = '#74037b';
+	ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+	ctx.font = '28px sans-serif';
+	ctx.fillStyle = '#ffffff';
+	ctx.fillText(`${name}#${member.user.discriminator} a quitté\n${server}`, canvas.width / 2.5, canvas.height / 2.5);
+    
+    ctx.font = '28px sans-serif';
+	ctx.fillStyle = '#ffffff';
+	ctx.fillText(`On est ${memberCount} membres !`, canvas.width / 2.5, canvas.height / 1.3);
+
+	ctx.beginPath();
+	ctx.arc(125, 125, 100, 0, Math.PI * 2, true);
+	ctx.closePath();
+	ctx.clip();
+
+	const { body: buffer } = await snekfetch.get(member.user.displayAvatarURL);
+	const avatar = await Canvas.loadImage(buffer);
+	ctx.drawImage(avatar, 25, 25, 200, 200);
+
+    const attachment = new Discord.Attachment(canvas.toBuffer(), 'leave-image.png');
+	channel.send(attachment);
+	console.log(`${member.user.username}` + " a quitté " + `${member.guild.name}`)
+	dl.Delete(member.user.id)
 });
 
 client.on('message', async message => {
