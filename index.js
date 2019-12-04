@@ -923,12 +923,15 @@ client.on("message", message => {
     if (message.content.indexOf(CONFIG.prefix) !== 0) return;
     const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
+    const channelmention = message.mentions.channels.first() || message.channel;
     if (command === "logs-channel") {
         if (!message.member.hasPermission('VIEW_AUDIT_LOG')) return message.reply("Désolé, Vous n'avez pas les permissions !");
-        const LogsChannelID = args.join(` `);
-        CONFIG.logs = LogsChannelID;
+        const collectorchannel = new Discord.MessageCollector(message.channel, m => m.author.id === message.author.id, { time: 10000 });
+        collectorchannel.on('collect', message => {
+        CONFIG.logs = channelmention;
         if (!CONFIG.logs) return message.reply("Impossible de trouver le canal Logs !");
-        message.channel.send(`Les logs sont maintenant activés !`);
+        message.channel.send(`Les logs sont maintenant activés !\nSalon Logs: ${channelmention}`);
+        })
     }
 });
 
