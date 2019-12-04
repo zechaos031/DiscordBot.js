@@ -95,15 +95,15 @@ client.on('guildMemberAdd', async member => {
 	ctx.strokeStyle = '#74037b';
 	ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-	ctx.font = '28px sans-serif';
+	ctx.font = '26px sans-serif';
 	ctx.fillStyle = '#ffffff';
 	ctx.fillText(`Bienvenue dans ${server},`, canvas.width / 2.5, canvas.height / 3.5);
 
-	ctx.font = '28px sans-serif';
+	ctx.font = '26px sans-serif';
 	ctx.fillStyle = '#ffffff';
     ctx.fillText(`${name}#${member.user.discriminator}`, canvas.width / 2.5, canvas.height / 1.8);
     
-    ctx.font = '28px sans-serif';
+    ctx.font = '26px sans-serif';
 	ctx.fillStyle = '#ffffff';
 	ctx.fillText(`On est ${memberCount} membres !`, canvas.width / 2.5, canvas.height / 1.3);
 
@@ -235,11 +235,11 @@ client.on("guildMemberRemove", async member =>{
 	ctx.strokeStyle = '#74037b';
 	ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-	ctx.font = '28px sans-serif';
+	ctx.font = '26px sans-serif';
 	ctx.fillStyle = '#ffffff';
 	ctx.fillText(`${name}#${member.user.discriminator} a quitté\n${server}`, canvas.width / 2.5, canvas.height / 2.5);
     
-    ctx.font = '28px sans-serif';
+    ctx.font = '26px sans-serif';
 	ctx.fillStyle = '#ffffff';
 	ctx.fillText(`On est ${memberCount} membres !`, canvas.width / 2.5, canvas.height / 1.3);
 
