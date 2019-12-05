@@ -6,6 +6,7 @@ const client = new Client({ disableEveryone: true });
 const dl = require('discord-leveling');
 const Canvas = require('canvas');
 const snekfetch = require('snekfetch');
+require('events').EventEmitter.defaultMaxListeners = 0;
 var Long = require("long");
 var dernierAppel = new Array();
 client.music = require("./music");
