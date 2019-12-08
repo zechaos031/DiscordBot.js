@@ -973,9 +973,9 @@ client.on("message", message => {
 	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "help") {
-	  const embed = new Discord.RichEmbed()
+	  const embed1 = new Discord.RichEmbed()
 	        .setColor(`${config.colorembed}`)
-	        .setTitle(`Aide Commande`)
+	        .setTitle(`Aide Commande n°1`)
             .addField(`${guildConf[message.guild.id].prefix}server-info`, `Affiche les informations du serveur`)
             .addField(`${guildConf[message.guild.id].prefix}user-info`, `Afiiche vos informations non personnel`)
             .addField(`${guildConf[message.guild.id].prefix}bot-info`, `Affiche les informations du bot`)
@@ -984,13 +984,12 @@ client.on("message", message => {
 	    .addField(`${guildConf[message.guild.id].prefix}server-list`, `Affiche les serveurs où le bot est connecté`)
 	    .addField(`${guildConf[message.guild.id].prefix}server-invite`, `Commande permettant de générer un lien d'invitation du serveur`)
             .addField(`${guildConf[message.guild.id].prefix}kick`, `Commande permettant de kicker un membre`)
-            .addField(`${guildConf[message.guild.id].prefix}ban`, `Commande permettant de bannir un memre`)
+            .addField(`${guildConf[message.guild.id].prefix}ban`, `Commande permettant de bannir un membre`)
             .addField(`${guildConf[message.guild.id].prefix}report`, `Commande permettant de reporter un membre`)
             .addField(`${guildConf[message.guild.id].prefix}mute`, `Commande permettant de mettre en soudrine un membre`)
             .addField(`${guildConf[message.guild.id].prefix}unmute`, `Commande permettant d'enlever sourdine d'un membre`)
 	    .addField(`${guildConf[message.guild.id].prefix}bot-vote`, `Commande permettant de voter pour DiscordBot.Js`)
         .addField(`${guildConf[message.guild.id].prefix}chifoumi`, `Commande permettant de jouer aux chifoumi`)
-        .addField(`${guildConf[message.guild.id].prefix}new-prefix`, `Commande permettant de changer le prefix du bot`)
             .addField(`${guildConf[message.guild.id].prefix}clear`, `Commande permettant de supprimer des messsages`)
             .addField(`${guildConf[message.guild.id].prefix}ping`, `Commande permettant d'afficher le ping`)
             .addField(`${guildConf[message.guild.id].prefix}say`, `Commande permettant de faire parler le bot`)
@@ -1000,9 +999,14 @@ client.on("message", message => {
 	    .addField(`${guildConf[message.guild.id].prefix}embed-help`, `Aide pour crée un embed`)
             .addField(`${guildConf[message.guild.id].prefix}poll-help`, `Aide pour crée un sondage`)
 	    .addField(`${guildConf[message.guild.id].prefix}xp-help`, `Aide pour le système d'xp`)
+            .addField(`${guildConf[message.guild.id].prefix + config.prefixMusic}help`, `Affiche les commandes de musique`)
+      message.channel.send(embed1);
+      const embed2 = new Discord.RichEmbed()
+	        .setColor(`${config.colorembed}`)
+	        .setTitle(`Aide Commande n°2`)
+        .addField(`${guildConf[message.guild.id].prefix}new-prefix`, `Commande permettant de changer le prefix du bot`)
             .addField(`${guildConf[message.guild.id].prefix}money-help`, `Aide pour le système d'argent`)
-            .addField(`${guildConf[message.guild.id].prefix + guildConf[message.guild.id].prefixMusic}help`, `Affiche les commandes de musique`)
-	  message.channel.send(embed);
+	  message.channel.send(embed2);
 	  }
 });
 
