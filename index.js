@@ -1,42 +1,54 @@
 /*Ne touchez c'est valeurs que si vous êtes sur de ce que vous faites !*/
 const { Client, RichEmbed, Emoji, MessageReaction } = require('discord.js');
-const CONFIG = require('./config');
 const Discord = require('discord.js');
 const client = new Client({ disableEveryone: true });
 const dl = require('discord-leveling');
 const Canvas = require('canvas');
 const snekfetch = require('snekfetch');
+const db = require('quick.db')
+const ms = require('parse-ms')
+const config = require("./config.js");
+const guildConf = require('./config.json');
+const fs = require("fs");
 require('events').EventEmitter.defaultMaxListeners = 0;
 var Long = require("long");
 var dernierAppel = new Array();
 client.music = require("./music");
 client.music.start(client, {
-	youtubeKey: CONFIG.youtubeapikey,
-	botPrefix: CONFIG.prefix + CONFIG.prefixMusic,
+	youtubeKey: config.youtubeapikey,
+	botPrefix: config.prefix + config.prefixMusic,
   
 	play: {
-	  usage: "{{CONFIG.prefix + CONFIG.prefixMusic}}play some tunes",
+	  usage: "{{config.prefix + config.prefixMusic}}play some tunes",
 	  exclude: false  
 	},
   
 	anyoneCanSkip: true,
   
 	ownerOverMember: true,
-	ownerID: CONFIG.ownerID,
+	ownerID: config.ownerID,
   
 	cooldown: {
 	  enabled: false
 	}
   });
-client.login(CONFIG.botToken);
+client.login(config.botToken);
 client.on('ready', () => {
-		client.user.setActivity(`Mon prefix est ${CONFIG.prefix}`, {type: "WATCHING"});
+		client.user.setActivity(`Mon prefix est ${config.prefix}`, {type: "WATCHING"});
 		client.user.setStatus("online");
     console.log("Connecté en tant que " + client.user.tag)
     console.log("Serveurs:")
     client.guilds.forEach((guild) => {
         console.log(" - " + guild.name)
-		})
+        if (!guildConf[guild.id]) {
+            guildConf[guild.id] = {
+                prefix: config.prefix
+            }
+            }
+             fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+                 if (err) console.log(err)
+            })
+        })
 })
 const getDefaultChannel = (guild) => {
 	if(guild.channels.has(guild.id))
@@ -75,7 +87,25 @@ function timeConverter(timestamp)
         return time;
 }
 
-if (CONFIG.botToken === '')
+client.on('guildCreate', (guild) => {
+    if (!guildConf[guild.id]) {
+	guildConf[guild.id] = {
+		prefix: config.prefix
+	}
+    }
+     fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+     	if (err) console.log(err)
+	})
+});
+
+client.on('guildDelete', (guild) => {
+     delete guildConf[guild.id];
+     fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+     	if (err) console.log(err)
+	})
+});
+
+if (config.botToken === '')
     throw new Error("La propriété 'botToken' n'est pas définie dans le fichier config.js. Fais-le s'il te plaît !");
 
 client.on('error', console.error);
@@ -90,7 +120,7 @@ client.on('guildMemberAdd', async member => {
 	const canvas = Canvas.createCanvas(700, 250);
 	const ctx = canvas.getContext('2d');
 
-	const background = await Canvas.loadImage(`${CONFIG.picturewelcomeleave}`);
+	const background = await Canvas.loadImage(`${config.picturewelcomeleave}`);
 	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
 	ctx.strokeStyle = '#74037b';
@@ -230,7 +260,7 @@ client.on("guildMemberRemove", async member =>{
 	const canvas = Canvas.createCanvas(700, 250);
 	const ctx = canvas.getContext('2d');
 
-	const background = await Canvas.loadImage(`${CONFIG.picturewelcomeleave}`);
+	const background = await Canvas.loadImage(`${config.picturewelcomeleave}`);
 	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
 	ctx.strokeStyle = '#74037b';
@@ -274,13 +304,13 @@ client.on('message', async message => {
 /*Server Info*/
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "server-info") {
         let online = message.guild.members.filter(member => member.user.presence.status !== 'offline');
         const embed = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setThumbnail('' + message.guild.iconURL + '')
             .setTitle('Serveur Info')
             .addField("Nom du serveur", `${message.guild.name}`, true)
@@ -303,14 +333,14 @@ client.on("message", message => {
 /*User Info*/
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     let user = message.author;
     const member = message.mentions.members.first() || message.guild.members.get(args[0]) || message.member;
     if (command === "user-info") {
         const embed = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setThumbnail('' + member.user.displayAvatarURL + '')
             .setTitle('Utlisateur Info')
             .addField("Pseudo", `${member}`, true)
@@ -329,12 +359,12 @@ client.on("message", message => {
 /*Bot Info*/
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "bot-info") {
         const embed = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setThumbnail('' + client.user.displayAvatarURL + '')
             .setTitle('Bot Info', true)
             .addField("Nom du bot", `${client.user}`, true)
@@ -355,8 +385,8 @@ client.on("message", message => {
 /*Channel Info*/
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     const channel = message.mentions.channels.first() || message.channel;
     const channelTypes = {
@@ -369,7 +399,7 @@ client.on("message", message => {
     };
     if (command === "channel-info") {
         const embed = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Channel Info', true)
             .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name, true)
             .addField("Id", channel.id, true)
@@ -387,8 +417,8 @@ client.on("message", message => {
 /*Role Info*/
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     const role = message.mentions.roles.first() || message.guild.roles.get(args[0]);
     if (command === "role-info") {
@@ -396,7 +426,7 @@ client.on("message", message => {
             return message.reply('Veuillez rentrez un role !');
         }
         const embed = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Channel Info', true)
             .addField("Nom du rôle", role.name, true)
             .addField("Id", role.id, true)
@@ -413,8 +443,8 @@ client.on("message", message => {
 /*Server List*/
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "server-list") {
         message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres`));
@@ -424,10 +454,10 @@ client.on("message", message => {
 /*Server Invite*/
 client.on("message", async message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
     if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
 	  return message.reply("Désolé, Vous n'avez pas les permissions !");
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     const invite = await message.channel.createInvite({
         maxAge: 0,
@@ -441,8 +471,8 @@ client.on("message", async message => {
 /*Kick*/
 client.on("message", async message => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "kick") {
 		if (!message.member.hasPermission('KICK_MEMBERS'))
@@ -458,7 +488,7 @@ client.on("message", async message => {
 	  if(!reason) reason = "Aucune Raison";
 
 	  const embed_kick_message = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Vous avez était kicker !')
 		  .addField("Auteur", `${message.author}`)
 		  .addField("Auteur ID", `${message.author.id}`)
@@ -481,8 +511,8 @@ client.on("message", async message => {
 /*Ban*/
 client.on("message", message => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "ban") {
 		if (!message.member.hasPermission('BAN_MEMBERS'))
@@ -498,7 +528,7 @@ client.on("message", message => {
 	  if(!reason) reason = "Aucune Raison";
 
 	  const embed_ban_message = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Vous avez était bannie !')
 		  .addField("Auteur", `${message.author}`)
 		  .addField("Auteur ID", `${message.author.id}`)
@@ -521,8 +551,8 @@ client.on("message", message => {
 /*Report*/
 client.on("message", async(message) => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "report") {
 	if (!message.member.hasPermission('KICK_MEMBERS'))
@@ -535,7 +565,7 @@ client.on("message", async(message) => {
 	if(!reason) reason = "Aucune Raison";
 
 	const embed_report = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Logs Report')
 		  .addField("Membre", `${target.user}`)
 		  .addField("Membre ID", `${target.user.id}`)
@@ -546,7 +576,7 @@ client.on("message", async(message) => {
 		.setFooter('Report Release Version');
 
 	const embed_report_message = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Vous avez était reporté !')
 		  .addField("Auteur", `${message.author}`)
 		  .addField("Auteur ID", `${message.author.id}`)
@@ -559,7 +589,7 @@ client.on("message", async(message) => {
 		  .setFooter('Report Release Version');
 
 	const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-            const LogsChannelID = message.guild.channels.get(CONFIG.logs)
+            const LogsChannelID = message.guild.channels.get(config.logs)
             if (LogsChannel) {
             LogsChannel.send(embed_report)
             }
@@ -576,8 +606,8 @@ client.on("message", async(message) => {
 /*Mute*/
 client.on("message", async message => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "mute") {
 		if (!message.member.hasPermission(["MANAGE_ROLES", "MUTE_MEMBERS", "MANAGE_CHANNELS"]))
@@ -613,7 +643,7 @@ client.on("message", async message => {
 	  if(!reason) reason = "Aucune Raison";
 
 	  const embed1 = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Vous êtes mute !')
 		  .addField("Auteur", `${message.author}`)
 		  .addField("Auteur ID", `${message.author.id}`)
@@ -626,7 +656,7 @@ client.on("message", async message => {
 		  .setFooter('Mute Release Version');
 
 		  const embed3 = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Logs Mute')
 		  .addField("Auteur", `${message.author}`)
 		  .addField("Auteur ID", `${message.author.id}`)
@@ -640,7 +670,7 @@ client.on("message", async message => {
 			target.addRole(muteRole)
 				target.send(embed1);
 				const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-            			const LogsChannelID = message.guild.channels.get(CONFIG.logs)
+            			const LogsChannelID = message.guild.channels.get(config.logs)
             				if (LogsChannel) {
                 				LogsChannel.send(embed3)
             				}
@@ -658,8 +688,8 @@ client.on("message", async message => {
 /*Unmute*/
 client.on("message", async message => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "unmute") {
 		if (!message.member.hasPermission(["MANAGE_ROLES", "MUTE_MEMBERS", "MANAGE_CHANNELS"]))
@@ -674,7 +704,7 @@ client.on("message", async message => {
 	  if(!reason) reason = "Aucune Raison";
 
 		  const embed2 = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle(`Vous n'êtes plus mute !`)
 		  .addField("Auteur", `${message.author}`)
 		  .addField("Auteur ID", `${message.author.id}`)
@@ -687,7 +717,7 @@ client.on("message", async message => {
 		  .setFooter('Unmute Release Version');
 
 		  const embed4 = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle(`Logs Unmute:`)
 		  .addField("Auteur", `${message.author}`)
 		  .addField("Auteur ID", `${message.author.id}`)
@@ -701,7 +731,7 @@ client.on("message", async message => {
 			target.removeRole(muteRole)
 				target.send(embed2);
 				const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-            			const LogsChannelID = message.guild.channels.get(CONFIG.logs)
+            			const LogsChannelID = message.guild.channels.get(config.logs)
             				if (LogsChannel) {
                 				LogsChannel.send(embed4)
             				}
@@ -719,12 +749,12 @@ client.on("message", async message => {
 /*Bot Vote*/
 client.on("message", message => {
 	  if(message.author.bot) return;
-	  if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	  const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	  if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	  const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
       const command = args.shift().toLowerCase();
 	  if(command === "bot-vote") {
         const embed = new Discord.RichEmbed()
-        .setColor(`${CONFIG.colorembed}`)
+        .setColor(`${config.colorembed}`)
         .setTitle(`Voter pour DiscordBot.Js`)
         .setDescription(`Voter sur top.gg: https://top.gg/bot/629968935709835284/vote`)
         message.channel.send(embed);
@@ -734,8 +764,8 @@ client.on("message", message => {
 /*Pierre, Feuille, Ciseaux*/
 client.on("message", (message) => {
     if(message.author.bot) return;
-    if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if(command === "chifoumi") {
         let rps = ["ciseaux", "feuille", "pierre"];
@@ -770,8 +800,8 @@ let comp_val = rps[parseInt(comp_res)];
 /*Clear*/
 client.on("message", async message => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "clear") {
 		if (!message.member.hasPermission('MANAGE_MESSAGES'))
@@ -790,12 +820,12 @@ client.on("message", async message => {
 /*Ping*/
 client.on("message", message => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "ping") {
 	  const embed = new Discord.RichEmbed()
-	  .setColor(`${CONFIG.colorembed}`)
+	  .setColor(`${config.colorembed}`)
 	  .setTitle(`Ping Info`)
 	  .setDescription(`Temp de latence avec le serveur ${message.createdTimestamp - Date.now()} ms\nTemp de latence avec l'API de Discord ${Math.round(client.ping)} ms`)
 	  message.channel.send(embed);
@@ -805,8 +835,8 @@ client.on("message", message => {
 /*Say*/
 client.on("message", message => {
 	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "say") {
 	  if (!message.member.hasPermission('MANAGE_MESSAGES'))
@@ -821,24 +851,24 @@ client.on("message", message => {
 /*Markdown*/
 client.on("message", message => {
   if(message.author.bot) return;
-  if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-  const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+  if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+  const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   if(command === "say-markdown") {
 	  if (!message.member.hasPermission('MANAGE_MESSAGES'))
 	  return message.reply("Désolé, Vous n'avez pas les permissions !");
 	  const embed = new Discord.RichEmbed()
-		.setColor(`${CONFIG.colorembed}`)
+		.setColor(`${config.colorembed}`)
 		.setTitle(`Markdown Help`)
-		.addField(`${CONFIG.prefix}say-italic`, `*Italic*`)
-		.addField(`${CONFIG.prefix}say-bold`, `**Gras**`)
-		.addField(`${CONFIG.prefix}say-underline`, `__Souligné__`)
-		.addField(`${CONFIG.prefix}say-strikethrough`, `~~Barré~~`)
-		.addField(`${CONFIG.prefix}say-quotes`, `>>> Citations`)
-		.addField(`${CONFIG.prefix}say-spoiler`, `||Spoiler||`)
-		.addField(`${CONFIG.prefix}say-code`, `Visualisation Impossible`)
-		.addField(`${CONFIG.prefix}say-code-block`, `Visualisation Impossible`)
-		.addField(`${CONFIG.prefix}say-code-color`, `Pour effectuer cette commande, vous devez sauter une ligne après la langue définie !\nExemple: ${CONFIG.prefix}say-code-color Js ou autre langage\nVotre code en Js ou autre langage`)
+		.addField(`${guildConf[message.guild.id].prefix}say-italic`, `*Italic*`)
+		.addField(`${guildConf[message.guild.id].prefix}say-bold`, `**Gras**`)
+		.addField(`${guildConf[message.guild.id].prefix}say-underline`, `__Souligné__`)
+		.addField(`${guildConf[message.guild.id].prefix}say-strikethrough`, `~~Barré~~`)
+		.addField(`${guildConf[message.guild.id].prefix}say-quotes`, `>>> Citations`)
+		.addField(`${guildConf[message.guild.id].prefix}say-spoiler`, `||Spoiler||`)
+		.addField(`${guildConf[message.guild.id].prefix}say-code`, `Visualisation Impossible`)
+		.addField(`${guildConf[message.guild.id].prefix}say-code-block`, `Visualisation Impossible`)
+		.addField(`${guildConf[message.guild.id].prefix}say-code-color`, `Pour effectuer cette commande, vous devez sauter une ligne après la langue définie !\nExemple: ${guildConf[message.guild.id].prefix}say-code-color Js ou autre langage\nVotre code en Js ou autre langage`)
 		.setTimestamp()
 		.setFooter('Markdown Release Version');
 		message.channel.send(embed);
@@ -921,16 +951,16 @@ if(command === "say-code-color") {
 /*Logs Channel*/
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     const channelmention = message.mentions.channels.first() || message.channel;
     if (command === "logs-channel") {
         if (!message.member.hasPermission('VIEW_AUDIT_LOG')) return message.reply("Désolé, Vous n'avez pas les permissions !");
         const collectorchannel = new Discord.MessageCollector(message.channel, m => m.author.id === message.author.id, { time: 10000 });
         collectorchannel.on('collect', message => {
-        CONFIG.logs = channelmention;
-        if (!CONFIG.logs) return message.reply("Impossible de trouver le canal Logs !");
+        config.logs = channelmention;
+        if (!config.logs) return message.reply("Impossible de trouver le canal Logs !");
         message.channel.send(`Les logs sont maintenant activés !\nSalon Logs: ${channelmention}`);
         })
     }
@@ -938,67 +968,68 @@ client.on("message", message => {
 
 /*Help*/
 client.on("message", message => {
-	if(message.author.bot) return;
-	if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-	const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if(!message.guild || message.author.bot) return;
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	if(command === "help") {
 	  const embed = new Discord.RichEmbed()
-	        .setColor(`${CONFIG.colorembed}`)
+	        .setColor(`${config.colorembed}`)
 	        .setTitle(`Aide Commande`)
-            .addField(`${CONFIG.prefix}server-info`, `Affiche les informations du serveur`)
-            .addField(`${CONFIG.prefix}user-info`, `Afiiche vos informations non personnel`)
-            .addField(`${CONFIG.prefix}bot-info`, `Affiche les informations du bot`)
-            .addField(`${CONFIG.prefix}channel-info`, `Affiche les informations d'un salon`)
-            .addField(`${CONFIG.prefix}role-info`, `Affiche les informations d'un rôle`)
-	    .addField(`${CONFIG.prefix}server-list`, `Affiche les serveurs où le bot est connecté`)
-	    .addField(`${CONFIG.prefix}server-invite`, `Commande permettant de générer un lien d'invitation du serveur`)
-            .addField(`${CONFIG.prefix}kick`, `Commande permettant de kicker un membre`)
-            .addField(`${CONFIG.prefix}ban`, `Commande permettant de bannir un memre`)
-            .addField(`${CONFIG.prefix}report`, `Commande permettant de reporter un membre`)
-            .addField(`${CONFIG.prefix}mute`, `Commande permettant de mettre en soudrine un membre`)
-            .addField(`${CONFIG.prefix}unmute`, `Commande permettant d'enlever sourdine d'un membre`)
-	    .addField(`${CONFIG.prefix}bot-vote`, `Commande permettant de voter pour DiscordBot.Js`)
-	    .addField(`${CONFIG.prefix}chifoumi`, `Commande permettant de jouer aux chifoumi`)
-            .addField(`${CONFIG.prefix}clear`, `Commande permettant de supprimer des messsages`)
-            .addField(`${CONFIG.prefix}ping`, `Commande permettant d'afficher le ping`)
-            .addField(`${CONFIG.prefix}say`, `Commande permettant de faire parler le bot`)
-            .addField(`${CONFIG.prefix}say-markdown`, `Commande permettant de faire parler le bot avec les markdown de discord`)
-	    .addField(`${CONFIG.prefix}logs-channel`, `Commande permettant de configurer le salon Logs\n(Veuillez renseignez l'ID du channel !)`)
-	    .addField(`${CONFIG.prefix}setup-server`, `Commande permettant de configurer un serveur`)
-	    .addField(`${CONFIG.prefix}embed-help`, `Aide pour crée un embed`)
-            .addField(`${CONFIG.prefix}poll-help`, `Aide pour crée un sondage`)
-	    .addField(`${CONFIG.prefix}xp-help`, `Aide pour le système d'xp`)
-            .addField(`${CONFIG.prefix}help-reaction-role`, `Aide pour la configuration de Reaction Role`)
-            .addField(`${CONFIG.prefix + CONFIG.prefixMusic}help`, `Affiche les commandes de musique`)
+            .addField(`${guildConf[message.guild.id].prefix}server-info`, `Affiche les informations du serveur`)
+            .addField(`${guildConf[message.guild.id].prefix}user-info`, `Afiiche vos informations non personnel`)
+            .addField(`${guildConf[message.guild.id].prefix}bot-info`, `Affiche les informations du bot`)
+            .addField(`${guildConf[message.guild.id].prefix}channel-info`, `Affiche les informations d'un salon`)
+            .addField(`${guildConf[message.guild.id].prefix}role-info`, `Affiche les informations d'un rôle`)
+	    .addField(`${guildConf[message.guild.id].prefix}server-list`, `Affiche les serveurs où le bot est connecté`)
+	    .addField(`${guildConf[message.guild.id].prefix}server-invite`, `Commande permettant de générer un lien d'invitation du serveur`)
+            .addField(`${guildConf[message.guild.id].prefix}kick`, `Commande permettant de kicker un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}ban`, `Commande permettant de bannir un memre`)
+            .addField(`${guildConf[message.guild.id].prefix}report`, `Commande permettant de reporter un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}mute`, `Commande permettant de mettre en soudrine un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}unmute`, `Commande permettant d'enlever sourdine d'un membre`)
+	    .addField(`${guildConf[message.guild.id].prefix}bot-vote`, `Commande permettant de voter pour DiscordBot.Js`)
+        .addField(`${guildConf[message.guild.id].prefix}chifoumi`, `Commande permettant de jouer aux chifoumi`)
+        .addField(`${guildConf[message.guild.id].prefix}new-prefix`, `Commande permettant de changer le prefix du bot`)
+            .addField(`${guildConf[message.guild.id].prefix}clear`, `Commande permettant de supprimer des messsages`)
+            .addField(`${guildConf[message.guild.id].prefix}ping`, `Commande permettant d'afficher le ping`)
+            .addField(`${guildConf[message.guild.id].prefix}say`, `Commande permettant de faire parler le bot`)
+            .addField(`${guildConf[message.guild.id].prefix}say-markdown`, `Commande permettant de faire parler le bot avec les markdown de discord`)
+	    .addField(`${guildConf[message.guild.id].prefix}logs-channel`, `Commande permettant de configurer le salon Logs\n(Veuillez renseignez l'ID du channel !)`)
+	    .addField(`${guildConf[message.guild.id].prefix}setup-server`, `Commande permettant de configurer un serveur`)
+	    .addField(`${guildConf[message.guild.id].prefix}embed-help`, `Aide pour crée un embed`)
+            .addField(`${guildConf[message.guild.id].prefix}poll-help`, `Aide pour crée un sondage`)
+	    .addField(`${guildConf[message.guild.id].prefix}xp-help`, `Aide pour le système d'xp`)
+            .addField(`${guildConf[message.guild.id].prefix}money-help`, `Aide pour le système d'argent`)
+            .addField(`${guildConf[message.guild.id].prefix + guildConf[message.guild.id].prefixMusic}help`, `Affiche les commandes de musique`)
 	  message.channel.send(embed);
 	  }
 });
 
 /*Reaction Role*/
-if (CONFIG.roles.length !== CONFIG.reactions.length)
+if (config.roles.length !== config.reactions.length)
     throw "La liste des rôles et la liste des réactions ne sont pas éxacte ! Veuillez vérifier ceci dans le fichier config.js";
         function generateMessages() {
-            return CONFIG.roles.map((r, e) => {
+            return config.roles.map((r, e) => {
                 return {
                     role: r,
                     message: `Réagissez ci-dessous pour obtenir le rôle **"${r}"** !`,
-                    emoji: CONFIG.reactions[e]
+                    emoji: config.reactions[e]
                 };
             });
 }
 
 function generateEmbedFields() {
-    return CONFIG.roles.map((r, e) => {
+    return config.roles.map((r, e) => {
         return {
-            emoji: CONFIG.reactions[e],
+            emoji: config.reactions[e],
             role: r
         };
     });
 }
 
 client.on("message", message => {
-    if (message.content === `${CONFIG.prefix}reaction-role-create`) {
+    if (message.content === `${guildConf[message.guild.id].prefix}reaction-role-create`) {
         if (!message.member.hasPermission('MANAGE_ROLES'))
 	return message.reply("Désolé, Vous n'avez pas les permissions !");
 
@@ -1008,9 +1039,9 @@ client.on("message", message => {
 
     if (message.guild && !message.channel.permissionsFor(message.guild.me).missing('SEND_MESSAGES')) return;
 
-    if ((message.author.id !== CONFIG.ownerID) && (message.content.toLowerCase() !== `${CONFIG.prefix}reaction-role-create`)) return;
+    if ((message.author.id !== config.ownerID) && (message.content.toLowerCase() !== `${guildConf[message.guild.id].prefix}reaction-role-create`)) return;
 
-    if (CONFIG.deleteSetupCMD) {
+    if (config.deleteSetupCMD) {
         const missing = message.channel.permissionsFor(message.guild.me).missing('MANAGE_MESSAGES');
 
         if (missing.includes('MANAGE_MESSAGES'))
@@ -1023,11 +1054,11 @@ client.on("message", message => {
     if (missing.includes('ADD_REACTIONS'))
         throw new Error("J'ai besoin de la permission pour ajouter des réactions aux messages ! Veuillez attribuer l'autorisation 'Ajouter des réactions' à ce salon !");
 
-    if (!CONFIG.embed) {
-        if (!CONFIG.initialMessage || (CONFIG.initialMessage === '')) 
+    if (!config.embed) {
+        if (!config.initialMessage || (config.initialMessage === '')) 
             throw "La propriété 'initialMessage' n'est pas définie dans le fichier config.js. Fais-le s'il te plaît !";
 
-        message.channel.send(CONFIG.initialMessage);
+        message.channel.send(config.initialMessage);
 
         const messages = generateMessages();
         for (const { role, message: msg, emoji } of messages) {
@@ -1041,20 +1072,20 @@ client.on("message", message => {
             }).catch(console.error);
         }
     } else {
-        if (!CONFIG.embedMessage || (CONFIG.embedMessage === ''))
+        if (!config.embedMessage || (config.embedMessage === ''))
             throw "La propriété 'embedMessage' n'est pas définie dans le fichier config.js. Fais-le s'il te plaît !";
-        if (!CONFIG.embedFooter || (CONFIG.embedMessage === ''))
+        if (!config.embedFooter || (config.embedMessage === ''))
             throw "La propriété 'embedFooter' n'est pas définie dans le fichier config.js. Fais-le s'il te plaît !";
 
         const roleEmbed = new RichEmbed()
-            .setDescription(CONFIG.embedMessage)
-            .setFooter(CONFIG.embedFooter);
+            .setDescription(config.embedMessage)
+            .setFooter(config.embedFooter);
 
-        if (CONFIG.embedColor) roleEmbed.setColor(CONFIG.embedColor);
+        if (config.embedColor) roleEmbed.setColor(config.embedColor);
 
-        if (CONFIG.embedThumbnail && (CONFIG.embedThumbnailLink !== '')) 
-            roleEmbed.setThumbnail(CONFIG.embedThumbnailLink);
-        else if (CONFIG.embedThumbnail && message.guild.icon)
+        if (config.embedThumbnail && (config.embedThumbnailLink !== '')) 
+            roleEmbed.setThumbnail(config.embedThumbnailLink);
+        else if (config.embedThumbnail && message.guild.icon)
             roleEmbed.setThumbnail(message.guild.iconURL);
 
         const fields = generateEmbedFields();
@@ -1071,7 +1102,7 @@ client.on("message", message => {
         }
 
         message.channel.send(roleEmbed).then(async m => {
-            for (const r of CONFIG.reactions) {
+            for (const r of config.reactions) {
                 const emoji = r;
                 const customCheck = client.emojis.find(e => e.name === emoji);
                 
@@ -1110,11 +1141,11 @@ client.on('raw', async event => {
     if (message.embeds[0]) embedFooterText = message.embeds[0].footer.text;
 
     if (
-        (message.author.id === client.user.id) && (message.content !== CONFIG.initialMessage || 
-        (message.embeds[0] && (embedFooterText !== CONFIG.embedFooter)))
+        (message.author.id === client.user.id) && (message.content !== config.initialMessage || 
+        (message.embeds[0] && (embedFooterText !== config.embedFooter)))
     ) {
 
-        if (!CONFIG.embed && (message.embeds.length < 1)) {
+        if (!config.embed && (message.embeds.length < 1)) {
             const re = `\\*\\*"(.+)?(?="\\*\\*)`;
             const role = message.content.match(re)[1];
 
@@ -1123,7 +1154,7 @@ client.on('raw', async event => {
                 if (event.t === "MESSAGE_REACTION_ADD") member.addRole(guildRole.id);
                 else if (event.t === "MESSAGE_REACTION_REMOVE") member.removeRole(guildRole.id);
             }
-        } else if (CONFIG.embed && (message.embeds.length >= 1)) {
+        } else if (config.embed && (message.embeds.length >= 1)) {
             const fields = message.embeds[0].fields;
 
             for (const { name, value } of fields) {
@@ -1144,7 +1175,7 @@ client.on('messageDelete', async (message) => {
 	if(message.content === "") message.content = "Visualisation Impossible"
 	const embed = new Discord.RichEmbed()
 		  //.setAuthor('' + client.user.username + '', '' + client.user.displayAvatarURL + '')
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Logs Message Supprimer')
 		  .addField("Message", `${message.content}`)
 		  .addField("Message ID", `${message.id}`)
@@ -1155,7 +1186,7 @@ client.on('messageDelete', async (message) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = message.guild.channels.get(CONFIG.logs)
+        	  const LogsChannelID = message.guild.channels.get(config.logs)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
@@ -1171,7 +1202,7 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
 	}
 	if(newMessage.content === "") newMessage.content = "Visualisation Impossible"
 	const embed = new Discord.RichEmbed()
-		  .setColor(`${CONFIG.colorembed}`)
+		  .setColor(`${config.colorembed}`)
 		  .setTitle('Logs Message Editer')
 		  .addField("Nouveau Message", `${newMessage.content}`)
 		  .addField("Nouveau Message ID", `${newMessage.id}`)
@@ -1184,7 +1215,7 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = newMessage.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = newMessage.guild.channels.get(CONFIG.logs)
+        	  const LogsChannelID = newMessage.guild.channels.get(config.logs)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
@@ -1206,7 +1237,7 @@ client.on('channelCreate', async (channel, message) => {
     let logs = await channel.guild.fetchAuditLogs({type: 10});
     let entry = logs.entries.first();
 	const embed = new Discord.RichEmbed()
-	  .setColor(`${CONFIG.colorembed}`)
+	  .setColor(`${config.colorembed}`)
 	  .setTitle('Logs Salon Ajoutés')
 	  .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
           .addField("ID", channel.id)
@@ -1220,7 +1251,7 @@ client.on('channelCreate', async (channel, message) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = channel.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = channel.guild.channels.get(CONFIG.logs)
+        	  const LogsChannelID = channel.guild.channels.get(config.logs)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
@@ -1242,7 +1273,7 @@ client.on('channelDelete', async (channel, message) => {
     let logs = await channel.guild.fetchAuditLogs({type: 12});
     let entry = logs.entries.first();
 	const embed = new Discord.RichEmbed()
-	  .setColor(`${CONFIG.colorembed}`)
+	  .setColor(`${config.colorembed}`)
           .setTitle('Logs Salon Supprimés')
 	  .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
           .addField("ID", channel.id)
@@ -1256,7 +1287,7 @@ client.on('channelDelete', async (channel, message) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = channel.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = channel.guild.channels.get(CONFIG.logs)
+        	  const LogsChannelID = channel.guild.channels.get(config.logs)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
@@ -1270,7 +1301,7 @@ client.on('guildBanAdd', async (guild, user) => {
     let logs = await guild.fetchAuditLogs({type: 22});
     let entry = logs.entries.first();
 	const embed = new Discord.RichEmbed()
-	  .setColor(`${CONFIG.colorembed}`)
+	  .setColor(`${config.colorembed}`)
           .setTitle('Logs Membre Bannie')
 	  .addField("Membre", user)
           .addField("Membre ID", user.id)
@@ -1280,7 +1311,7 @@ client.on('guildBanAdd', async (guild, user) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = guild.channels.get(CONFIG.logs)
+        	  const LogsChannelID = guild.channels.get(config.logs)
         		if (LogsChannel) {
         			    setTimeout(function(){
                         LogsChannel.send(embed)
@@ -1296,7 +1327,7 @@ client.on('guildBanRemove', async (guild, user) => {
     let logs = await guild.fetchAuditLogs({type: 23});
     let entry = logs.entries.first();
 	const embed = new Discord.RichEmbed()
-	  .setColor(`${CONFIG.colorembed}`)
+	  .setColor(`${config.colorembed}`)
           .setTitle('Logs Membre Débannie')
 	  .addField("Membre", user)
           .addField("Membre ID", user.id)
@@ -1306,7 +1337,7 @@ client.on('guildBanRemove', async (guild, user) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = guild.channels.get(CONFIG.logs)
+        	  const LogsChannelID = guild.channels.get(config.logs)
         		if (LogsChannel) {
                     LogsChannel.send(embed)
         		}
@@ -1330,8 +1361,8 @@ function sleep(ms) {
 }
 client.on("message", message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "poll-test-stranger-things") {
         emoji1id = "612854454101999647"
@@ -1356,7 +1387,7 @@ client.on("message", message => {
         if (!time) return message.reply("Vous devez définir un temps !")
         if (!question) return message.reply("Vous devez spécifier une question !")
         const embedpollinfo = new Discord.RichEmbed()
-                    .setColor(`${CONFIG.colorembed}`)
+                    .setColor(`${config.colorembed}`)
                     .setTitle('Sondage Info')
                     .addField(`Emoji 1 Texte`, `${emoji1text}`)
                     .addField(`Emoji 1 ID`, `${emoji1id}`)
@@ -1388,7 +1419,7 @@ client.on("message", message => {
         if (!(isNaN(time)) && (time <= 1440)) {
             if (time >= 1) {
                 const embedpollcreate = new Discord.RichEmbed()
-                    .setColor(`${CONFIG.colorembed}`)
+                    .setColor(`${config.colorembed}`)
                     .setTitle('Sondage')
                     .addField(`${question}`, `Répondez avec ${emoji1text} ou ${emoji2text}`)
                     .addField(`Le sondage se termine dans`, `${time} minutes`)
@@ -1405,7 +1436,7 @@ client.on("message", message => {
                                 .then(async function (message) {
                                     await sleep(time * 60000)
                                     const embedresult = new Discord.RichEmbed()
-                                        .setColor(`${CONFIG.colorembed}`)
+                                        .setColor(`${config.colorembed}`)
                                         .setTitle('Sondage')
                                         .addField(`Le vote ${question}`, `est maintenant terminé !`)
                                         .setTimestamp()
@@ -1423,11 +1454,11 @@ client.on("message", message => {
     }
     if (command === "poll-help") {
         const embedpollhelp = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Aide Sondage')
-            .addField(`${CONFIG.prefix}poll-info`, `Commande permettant de spécifier les options du sondage\nExemple: **${CONFIG.prefix}poll-info <votre 1er custom émoji ou émoji> <l'ID du 1er l'émoji> <votre 2nd custom émoji ou émoji> <l'ID du 2nd l'émoji> <Le temps en minutes> <La question>**\nRésultat: **${CONFIG.prefix}poll-info :Onze: 612854454101999647 :Mike: 612854453237841920 20 Onze ou Mike ?**`)
-            .addField(`${CONFIG.prefix}poll-create`, `Commande permettant de crée un sondage`)
-            .addField(`${CONFIG.prefix}poll-reset`, `Commande permettant de réinitialiser les info du sondage`)
+            .addField(`${guildConf[message.guild.id].prefix}poll-info`, `Commande permettant de spécifier les options du sondage\nExemple: **${guildConf[message.guild.id].prefix}poll-info <votre 1er custom émoji ou émoji> <l'ID du 1er l'émoji> <votre 2nd custom émoji ou émoji> <l'ID du 2nd l'émoji> <Le temps en minutes> <La question>**\nRésultat: **${guildConf[message.guild.id].prefix}poll-info :Onze: 612854454101999647 :Mike: 612854453237841920 20 Onze ou Mike ?**`)
+            .addField(`${guildConf[message.guild.id].prefix}poll-create`, `Commande permettant de crée un sondage`)
+            .addField(`${guildConf[message.guild.id].prefix}poll-reset`, `Commande permettant de réinitialiser les info du sondage`)
             .setTimestamp()
             .setFooter('Sondage Beta Version');
         message.channel.send(embedpollhelp)
@@ -1437,7 +1468,7 @@ client.on("message", message => {
 /*Système d'xp*/
 client.on('message', async message => {
     if (message.author.bot) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     var profile = await dl.Fetch(message.author.id)
     var user = message.mentions.users.first() || message.author
@@ -1447,7 +1478,7 @@ client.on('message', async message => {
       await dl.AddLevel(message.author.id, 1)
       await dl.SetXp(message.author.id, 0)
       const embednewlvl = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Xp Nouveau Niveaux !')
 	        .setDescription(`${message.author}`)
             .addField(`Niveaux`, `${profile.level + 1}`)
@@ -1458,7 +1489,7 @@ client.on('message', async message => {
 
     if (command === 'xp-info') {
       const embedxpinfo = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Xp Info')
 	        .setDescription(`${message.author}`)
             .addField(`Niveaux`, `${output1.level}`)
@@ -1474,7 +1505,7 @@ client.on('message', async message => {
       var amount = args[0]
       var output2 = await dl.SetXp(user.id, amount)
       const embedsetxp = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Xp Reçue')
 	        .setDescription(`${message.mentions.users.first()}`)
             .addField(`Xp Définie`, `${amount}`)
@@ -1490,7 +1521,7 @@ client.on('message', async message => {
       var amount = args[0]
       var output3 = await dl.SetLevel(user.id, amount)
       const embedsetlevel = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Niveaux Reçue')
 	        .setDescription(`${message.mentions.users.first()}`)
             .addField(`Niveaux Définie`, `${amount}`)
@@ -1506,7 +1537,7 @@ client.on('message', async message => {
             search: message.mentions.users.first().id
           })
         const embedxpstats1 = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Xp Stats')
             .setDescription(`${message.mentions.users.first()}`)
             .addField(`Classement`, `${output.placement}`,)
@@ -1523,7 +1554,7 @@ client.on('message', async message => {
           if (users[1]) var secondplace = await client.fetchUser(users[1].userid)
           if (users[2]) var thirdplace = await client.fetchUser(users[2].userid)
           const embedxpstats2 = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Xp Stats')
             .setDescription(`Classement`)
             .addField(`#1 - ${firstplace && firstplace.tag || 'Personne'}`, `Niveaux ${users[0] && users[0].level || 'Aucun'}\nXp ${users[0] && users[0].xp || 'Aucun'}`)
@@ -1546,13 +1577,13 @@ client.on('message', async message => {
 
     if (command === "xp-help") {
         const xphelp = new Discord.RichEmbed()
-            .setColor(`${CONFIG.colorembed}`)
+            .setColor(`${config.colorembed}`)
             .setTitle('Aide Xp')
-            .addField(`${CONFIG.prefix}xp-info`, `Commande permettant d'afficher le nombre d'xp et de niveau que vous avez`)
-            .addField(`${CONFIG.prefix}xp-setxp`, `Commande permettant de définir le nombre d'xp d'un membre`)
-            .addField(`${CONFIG.prefix}xp-setlevel`, `Commande permettant de définir le nombre de niveaux d'un membre`)
-            .addField(`${CONFIG.prefix}xp-leaderboard`, `Commande permettant d'afficher le classement d'un/des membre(s)\nDeux façons de l'utiliser: ${CONFIG.prefix}xp-leaderboard ou\n${CONFIG.prefix}xp-leaderboard <nom de la personne>`)
-            .addField(`${CONFIG.prefix}xp-delete`, `Commande permettant de supprimer un membre de la base de donnée`)
+            .addField(`${guildConf[message.guild.id].prefix}xp-info`, `Commande permettant d'afficher le nombre d'xp et de niveau que vous avez`)
+            .addField(`${guildConf[message.guild.id].prefix}xp-setxp`, `Commande permettant de définir le nombre d'xp d'un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}xp-setlevel`, `Commande permettant de définir le nombre de niveaux d'un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}xp-leaderboard`, `Commande permettant d'afficher le classement d'un/des membre(s)\nDeux façons de l'utiliser: ${guildConf[message.guild.id].prefix}xp-leaderboard ou\n${guildConf[message.guild.id].prefix}xp-leaderboard <nom de la personne>`)
+            .addField(`${guildConf[message.guild.id].prefix}xp-delete`, `Commande permettant de supprimer un membre de la base de donnée`)
             .setTimestamp()
             .setFooter('Xp Release Version');
         message.channel.send(xphelp)
@@ -1562,8 +1593,8 @@ client.on('message', async message => {
 /*Setup Serveur*/
 client.on("message", async message => {
     if (message.author.bot) return;
-    if (message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "setup-server") {
         if (!message.member.hasPermission(["ADMINISTRATOR"]))
@@ -1687,7 +1718,7 @@ client.on("message", async message => {
                         }
                         setTimeout(function () {
 			            const embedregles = new Discord.RichEmbed()
-                        .setColor(`${CONFIG.colorembed}`)
+                        .setColor(`${config.colorembed}`)
                         .setTitle('Règles:')
                         .addField(`I – Comportement`, `1: Restez courtois, poli.
                         Vous pouvez être familier, nous ne vous demandons pas d’écrire comme Molière, mais aussi pas comme dans la cité (Seven Binks).
@@ -1710,16 +1741,16 @@ client.on("message", async message => {
                         Puis la décision du Staff vous sera donnée ultérieurement par message privé.`)
                         .setTimestamp()
                         .setFooter('Ces règles peuvent être soumises à des évolutions au cours du temps !');
-                        CONFIG.roles = ["Notifications"],
-                        CONFIG.reactions = ["🔔"]
+                        config.roles = ["Notifications"],
+                        config.reactions = ["🔔"]
                         const roleEmbed = new RichEmbed()
-                        .setDescription(CONFIG.embedMessage)
-                        .setFooter(CONFIG.embedFooter);
-                        if (CONFIG.embedColor) roleEmbed.setColor(CONFIG.embedColor);
+                        .setDescription(config.embedMessage)
+                        .setFooter(config.embedFooter);
+                        if (config.embedColor) roleEmbed.setColor(config.embedColor);
 
-                        if (CONFIG.embedThumbnail && (CONFIG.embedThumbnailLink !== ''))
-                            roleEmbed.setThumbnail(CONFIG.embedThumbnailLink);
-                        else if (CONFIG.embedThumbnail && message.guild.icon)
+                        if (config.embedThumbnail && (config.embedThumbnailLink !== ''))
+                            roleEmbed.setThumbnail(config.embedThumbnailLink);
+                        else if (config.embedThumbnail && message.guild.icon)
                             roleEmbed.setThumbnail(message.guild.iconURL);
                         const fields = generateEmbedFields();
                             if (fields.length > 25) throw "Le nombre maximum de rôles pouvant être définis pour un embed est de 25!";
@@ -1797,7 +1828,7 @@ client.on("message", async message => {
                             let category = message.guild.channels.find(c => c.name == "👥Général" && c.type == "category");
                             channel.setParent(category.id);
                             channel.send(roleEmbed).then(async m => {
-                                for (const r of CONFIG.reactions) {
+                                for (const r of config.reactions) {
                                     const emoji = r;
                                     const customCheck = client.emojis.find(e => e.name === emoji);
                 
@@ -2022,8 +2053,8 @@ let embed_footer = ""
 let embed_footer_picture = ""
 client.on("message", message => {
     if(message.author.bot) return;
-    if(message.content.indexOf(CONFIG.prefix) !== 0) return;
-    const args = message.content.slice(CONFIG.prefix.length).trim().split(/ +/g);
+    if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if(command === "embed-color") {
         if (!message.member.hasPermission('MANAGE_MESSAGES'))
@@ -2083,7 +2114,7 @@ client.on("message", message => {
       message.channel.send(`Le footer de l'embed est ${embed_footer}\nL'url pour le footer de l'embed est ${embed_footer_picture}`)
     }
     if(command === "embed-test") {
-      embed_color = CONFIG.colorembed;
+      embed_color = config.colorembed;
       embed_title = "C'est un titre";
       embed_title_url = "https://discord.js.org/";
       embed_author = "C'est l'auteur";
@@ -2100,7 +2131,7 @@ client.on("message", message => {
     if(command === "embed-create") {
       if (!message.member.hasPermission('MANAGE_MESSAGES'))
     return message.reply("Désolé, Vous n'avez pas les permissions !");
-      if(!embed_color) embed_color = CONFIG.colorembed;
+      if(!embed_color) embed_color = config.colorembed;
       if(!embed_time) embed_time = "false";
       if(!embed_title) embed_title = "";
       if(!embed_title_url) embed_title_url = "";
@@ -2127,20 +2158,133 @@ client.on("message", message => {
   }
   if (command === "embed-help") {
     const embedpollhelp = new Discord.RichEmbed()
-        .setColor(`${CONFIG.colorembed}`)
+        .setColor(`${config.colorembed}`)
         .setTitle('Aide Embed Creator')
-        .addField(`${CONFIG.prefix}embed-color`, `Commande permettant de définir la couleur de l'embed`)
-        .addField(`${CONFIG.prefix}embed-title`, `Commande permettant de définir le titre de l'embed`)
-        .addField(`${CONFIG.prefix}embed-title-url`, `Commande permettant de définir l'url du titre de l'embed`)
-        .addField(`${CONFIG.prefix}embed-author`, `Commande permettant de définir l'auteur de l'embed\nExemple: ${CONFIG.prefix}embed-author <url> <image> <nom>`)
-        .addField(`${CONFIG.prefix}embed-description`, `Commande permettant de définir la description de l'embed`)
-        .addField(`${CONFIG.prefix}embed-thumbnail`, `Commande permettant de définir la vignette de l'embed`)
-        .addField(`${CONFIG.prefix}embed-picture`, `Commande permettant de définir l'image de l'embed`)
-        .addField(`${CONFIG.prefix}embed-time`, `Commande permettant d'afficher le temps de l'embed\nExemple: ${CONFIG.prefix}embed-time <true ou false>\ntrue = oui false = non`)
-        .addField(`${CONFIG.prefix}embed-footer`, `Commande permettant de définir le footer de l'embed\nExemple: ${CONFIG.prefix}embed-footer <image> <texte>`)
-        .addField(`${CONFIG.prefix}embed-create`, `Commande permettant de générer l'embed`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-color`, `Commande permettant de définir la couleur de l'embed`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-title`, `Commande permettant de définir le titre de l'embed`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-title-url`, `Commande permettant de définir l'url du titre de l'embed`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-author`, `Commande permettant de définir l'auteur de l'embed\nExemple: ${guildConf[message.guild.id].prefix}embed-author <url> <image> <nom>`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-description`, `Commande permettant de définir la description de l'embed`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-thumbnail`, `Commande permettant de définir la vignette de l'embed`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-picture`, `Commande permettant de définir l'image de l'embed`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-time`, `Commande permettant d'afficher le temps de l'embed\nExemple: ${guildConf[message.guild.id].prefix}embed-time <true ou false>\ntrue = oui false = non`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-footer`, `Commande permettant de définir le footer de l'embed\nExemple: ${guildConf[message.guild.id].prefix}embed-footer <image> <texte>`)
+        .addField(`${guildConf[message.guild.id].prefix}embed-create`, `Commande permettant de générer l'embed`)
         .setTimestamp()
         .setFooter('Embed Creator Beta Version');
     message.channel.send(embedpollhelp)
 }
 });
+
+/*Custom Prefix*/
+client.on("message", message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
+	  return message.reply("Désolé, Vous n'avez pas les permissions !");
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "new-prefix") {
+        let newPrefix = message.content.split(" ").slice(1, 2)[0];
+        guildConf[message.guild.id].prefix = newPrefix;
+	    if (!guildConf[message.guild.id].prefix) {
+		    guildConf[message.guild.id].prefix = guildConf[message.guild.id].prefix;
+	    }
+        message.reply(`Le prefix est maintenant: ${newPrefix}`)
+        fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+            if (err) console.log(err)
+       })
+    }
+});
+
+/*Economy Bot*/
+client.on('message', async message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
+	  return message.reply("Désolé, Vous n'avez pas les permissions !");
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "add-money") {
+        if (!message.member.hasPermission('ADMINISTRATOR')) {
+            return message.reply('You do not have enough permission to use this command.')
+        }
+    
+        if (!args[0]) return message.reply(`S'il vous plaît, veuillez spécifier une valeur.`)
+        if (isNaN(args[0])) return message.reply(`Ce n'est pas un nombre valide !`)
+    
+        let user = message.mentions.users.first() || message.author
+        message.channel.send('Ajouté avec succès, ' + args[0] + ' à ' + user)
+        db.add(`money_${message.guild.id}_${message.author.id}`, args[0])
+    }
+    if (command === "remove-money") {
+        if (!message.member.hasPermission('ADMINISTRATOR')) {
+            return message.reply('You do not have enough permission to use this command.')
+        }
+    
+        if (!args[0]) return message.reply(`S'il vous plaît, veuillez spécifier une valeur.`)
+        if (isNaN(args[0])) return message.reply(`Ce n'est pas un nombre valide !`)
+    
+        let user = message.mentions.users.first() || message.author
+        message.channel.send('Supprimés avec succès, ' + args[0] + ' à ' + user)
+        db.subtract(`money_${user.id}`, args[0])
+    }
+    if (command === "daily") {
+        let timeout = 86400000
+    let amount = 500
+    let daily = await db.fetch(`daily_${message.author.id}`);
+
+    if (daily !== null && timeout - (Date.now() - daily) > 0) {
+        let time = ms(timeout - (Date.now() - daily));
+            return message.reply(`Vous avez déjà récupéré votre récompense hebdomadaire, vous pouvez revenir la récupérer à **${time.hours}:${time.minutes}:${time.seconds}**!`)
+        } else {
+        let user = message.mentions.users.first() || message.author
+        message.channel.send('Récompense Quotidienne Ajoutés avec succès, ' + amount + ' à ' + user)
+        db.add(`money_${message.author.id}`, amount)
+        db.set(`daily_${message.author.id}`, Date.now())
+        }
+    }
+    if (command === "monthly") {
+        let timeout = 2592000000
+        let amount = 5000
+        let monthly = await db.fetch(`monthly_${message.author.id}`);
+
+        if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
+            let time = ms(timeout - (Date.now() - monthly));
+            return message.reply(`Vous avez déjà récupéré votre récompense mensuelle, vous pouvez revenir la récupérer dans **${time.days} jours à ${time.hours}:${time.minutes}:${time.seconds}**!`)
+        } else {
+        let user = message.mentions.users.first() || message.author
+        message.channel.send('Récompense Mensuelle Ajoutés avec succès, ' + amount + ' à ' + user)
+        db.add(`money_${message.author.id}`, amount)
+        db.set(`monthly_${message.author.id}`, Date.now())
+        }
+    }
+    if (command === "weekly") {
+        let timeout = 604800000
+        let amount = 1000
+        let weekly = await db.fetch(`weekly_${message.author.id}`);
+    
+        if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
+            let time = ms(timeout - (Date.now() - weekly));
+        return message.reply(`Vous avez déjà récupéré votre récompense hebdomadaire, vous pouvez revenir la récupérer dans **${time.days} jours à ${time.hours}:${time.minutes}:${time.seconds}**!`)
+    } else {
+        let user = message.mentions.users.first() || message.author
+        message.channel.send('Récompense Hebdomadaire Ajoutés avec succès, ' + amount + ' à ' + user)
+        db.add(`money_${message.author.id}`, amount)
+        db.set(`weekly_${message.author.id}`, Date.now())
+        }
+    }
+    if (command === "money-help") {
+        const embedpollhelp = new Discord.RichEmbed()
+        .setColor(`${config.colorembed}`)
+        .setTitle('Aide Argents')
+        .addField(`${guildConf[message.guild.id].prefix}add-money`, `Commande permettant d'ajouté de l'argent sur le solde`)
+        .addField(`${guildConf[message.guild.id].prefix}remove-money`, `Commande permettant de supprimé de l'argent sur le solde`)
+        .addField(`${guildConf[message.guild.id].prefix}daily`, `Commande permettant de recevoir une récompense quotidienne`)
+        .addField(`${guildConf[message.guild.id].prefix}monthly`, `Commande permettant de recevoir une récompense mensuelle`)
+        .addField(`${guildConf[message.guild.id].prefix}weekly`, `Commande permettant de recevoir une récompense hebdomadaire`)
+        .setTimestamp()
+        .setFooter('Embed Solde Release Version');
+    message.channel.send(embedpollhelp)
+    }
+})
