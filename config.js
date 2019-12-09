@@ -5,7 +5,6 @@ module.exports = {
 	botToken: process.env.TOKEN, // Token du bot ou "process.env.TOKEN" pour Heroku
 	youtubeapikey: process.env.YOUTUBEAPIKEY, // Youtube Api Key
 	logs: "", // Logs Channel ID
-	discordinvite: "discord.gg/invite/UqUsr5x", // Invitation du serveur
 	colorembed: "#F7DF1E", // Couleur du l'embed
 	picturewelcomeleave: "https://i.imgur.com/2rNY0D1.png", // Image des messages Welcome et Leave
 	creator: "Alex Animate Mp4#2361", // Créateur du bot
