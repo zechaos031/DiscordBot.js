@@ -6,7 +6,7 @@ module.exports = {
 	youtubeapikey: process.env.YOUTUBEAPIKEY, // Youtube Api Key
 	logs: "", // Logs Channel ID
 	discordinvite: "discord.gg/invite/UqUsr5x", // Invitation du serveur
-	colorembed: "#7289D9", // Couleur du l'embed
+	colorembed: "#F7DF1E", // Couleur du l'embed
 	picturewelcomeleave: "https://i.imgur.com/2rNY0D1.png", // Image des messages Welcome et Leave
 	creator: "Alex Animate Mp4#2361", // Créateur du bot
 	version: "1.4.0", // Version du bot
