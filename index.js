@@ -502,7 +502,7 @@ client.on("message", message => {
         }
         const embed = new Discord.RichEmbed()
             .setColor(`${config.colorembed}`)
-            .setTitle('Channel Info', true)
+            .setTitle('Rôle Info', true)
             .addField("Nom du rôle", role.name, true)
             .addField("Id", role.id, true)
             .addField("Position", role.calculatedPosition, true)
