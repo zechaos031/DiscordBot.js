@@ -1601,7 +1601,7 @@ client.on('guildBanAdd', async (guild, user) => {
                         }, 1000);
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return user.reply("Impossible de trouver le salon Logs !");
+        			if (!LogsChannelID) return guild.reply("Impossible de trouver le salon Logs !");
                         LogsChannelID.send(embed)
                 }
 })
