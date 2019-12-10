@@ -8,6 +8,7 @@
     <a href="https://top.gg/bot/629968935709835284"><img src="https://i.imgur.com/2x6O4zD.png" alt="Top.gg" /></a>
 </div>
 
+
 Tu veut un bot qui te fais de la pub sur touts les serveurs qui sont connectés au bot ?
 Eh bien il le fait !
 
