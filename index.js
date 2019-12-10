@@ -1539,7 +1539,7 @@ client.on('channelCreate', async (channel, message) => {
         			LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return message.channel.send("Impossible de trouver le salon Logs !");
+        			if (!LogsChannelID) return channel.send("Impossible de trouver le salon Logs !");
         				LogsChannelID.send(embed)
         		}
 })
@@ -1575,7 +1575,7 @@ client.on('channelDelete', async (channel, message) => {
         			LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return message.reply("Impossible de trouver le salon Logs !");
+        			if (!LogsChannelID) return channel.reply("Impossible de trouver le salon Logs !");
         				LogsChannelID.send(embed)
         		}
 })
