@@ -10,6 +10,9 @@ const ms = require('parse-ms')
 const config = require("./config.js");
 const guildConf = require('./config.json');
 const fs = require("fs");
+const hookcord = require('hookcord');
+const Hook = new hookcord.Hook()
+const wait = require('util').promisify(setTimeout);
 require('events').EventEmitter.defaultMaxListeners = 0;
 var Long = require("long");
 var dernierAppel = new Array();
@@ -33,7 +36,8 @@ client.music.start(client, {
 	}
   });
 client.login(config.botToken);
-client.on('ready', (guild) => {
+client.on('ready', () => {
+    wait(1000);
 		client.user.setActivity(`Mon prefix est ${config.prefix}`, {type: "WATCHING"});
 		client.user.setStatus("online");
     console.log("Connecté en tant que " + client.user.tag)
@@ -50,6 +54,7 @@ client.on('ready', (guild) => {
             })
         })
 })
+
 const getDefaultChannel = (guild) => {
 	if(guild.channels.has(guild.id))
 	  return guild.channels.get(guild.id)
@@ -244,7 +249,11 @@ client.on('guildMemberAdd', async member => {
     if(message_aléatoire == 30){
         message_aléatoire = `Où est ${member} ? Dans le serveur !`;
     }
-    const message_bienvenue_aléatoire = message_aléatoire;
+    let message_bienvenue_aléatoire = message_aléatoire;
+
+    if(member.id === config.ownerID) {
+        message_bienvenue_aléatoire = `Oh mon dieu ! ${member} Le créateur de ${client.user} a rejoint ${member.guild.name} !`;
+    }
 
     channel.send(`${message_bienvenue_aléatoire}`, attachment);
     console.log(`${member.user.username}`, "est arrivés dans " + `${member.guild.name}`)
@@ -310,19 +319,24 @@ client.on("message", message => {
     if (command === "server-info") {
         let verifLevels = ["Aucun", "Faible", "Moyen", "(╯°□°）╯︵  ┻━┻", "┻━┻ミヽ(ಠ益ಠ)ノ彡┻━┻"];
         let region = {
-            "brazil": "Brésil",
-            "eu-central": "Europe Central",
-            "singapore": "Singapour",
-            "us-central": "États-Unis Central",
-            "sydney": "Sydney",
-            "us-east": "Est des États-Unis",
-            "us-south": "Sud des États-Unis",
-            "us-west": "Ouest des États-Unis",
-            "eu-west": "Europe de l'Ouest",
-            "vip-us-east": "VIP U.S. East ?",
-            "london": "Londres",
-            "amsterdam": "Amsterdam",
-            "hongkong": "Hong Kong"
+            "brazil": ":flag_br: Brésil",
+            "southafrica": ":flag_za: Afrique du Sud",
+            "eu-central": ":flag_eu: Europe Central",
+            "europe": ":flag_eu: Europe",
+            "russia": ":flag_ru: Russie",
+            "singapore": ":flag_sg: Singapour",
+            "us-central": ":flag_us: États-Unis Central",
+            "sydney": ":flag_au: Sydney",
+            "japan": ":flag_jp: Japon",
+            "us-east": ":flag_us: Est des États-Unis",
+            "us-south": ":flag_us: Sud des États-Unis",
+            "us-west": ":flag_us: Ouest des États-Unis",
+            "eu-west": ":flag_eu: Europe de l'Ouest",
+            "vip-us-east": ":flag_us: VIP U.S. East ?",
+            "london": ":flag_gb: Londres",
+            "india": ":flag_in: Inde",
+            "amsterdam": ":flag_nl: Amsterdam",
+            "hongkong": ":flag_hk: Hong Kong"
         };
         var emojis;
         if (message.guild.emojis.size === 0) {
@@ -525,7 +539,27 @@ client.on("message", message => {
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "server-list") {
-        message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres | Propriétaire ${r.owner} | Région ${r.region}`));
+        let region = {
+            "brazil": ":flag_br: Brésil",
+            "southafrica": ":flag_za: Afrique du Sud",
+            "eu-central": ":flag_eu: Europe Central",
+            "europe": ":flag_eu: Europe",
+            "russia": ":flag_ru: Russie",
+            "singapore": ":flag_sg: Singapour",
+            "us-central": ":flag_us: États-Unis Central",
+            "sydney": ":flag_au: Sydney",
+            "japan": ":flag_jp: Japon",
+            "us-east": ":flag_us: Est des États-Unis",
+            "us-south": ":flag_us: Sud des États-Unis",
+            "us-west": ":flag_us: Ouest des États-Unis",
+            "eu-west": ":flag_eu: Europe de l'Ouest",
+            "vip-us-east": ":flag_us: VIP U.S. East ?",
+            "london": ":flag_gb: Londres",
+            "india": ":flag_in: Inde",
+            "amsterdam": ":flag_nl: Amsterdam",
+            "hongkong": ":flag_hk: Hong Kong"
+        };
+        message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres | Propriétaire **${r.owner ? r.owner.displayName : 'Aucun'}** | Région **${region[r.region]}**`));
     }
 });
 
@@ -533,15 +567,14 @@ client.on("message", message => {
 client.on("message", async message => {
     if (message.author.bot) return;
     if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
-    if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
-	  return message.reply("Désolé, Vous n'avez pas les permissions !");
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
-    const invite = await message.channel.createInvite({
-        maxAge: 0,
-        maxUses: 0
-    })
     if (command === "server-invite") {
+        if (!message.member.hasPermission('CREATE_INSTANT_INVITE')) return message.reply("Désolé, Vous n'avez pas les permissions !");
+        const invite = await message.channel.createInvite({
+            maxAge: 0,
+            maxUses: 0
+        })
             guildConf[message.guild.id] = {
                 prefix: `${guildConf[message.guild.id].prefix}`,
                 serverinvite: `${invite}`
@@ -550,7 +583,129 @@ client.on("message", async message => {
                  if (err) console.log(err)
             })
         message.channel.send(`Lien d'invitation: ${invite}`);
+        console.log(`${message.guild.id} a crée une invitation ${invite}`)
     }
+});
+
+/*Webhook*/
+client.on("message", async message => {
+	if(message.author.bot) return;
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if(command === "webhook-create") {
+        if (!message.member.hasPermission('MANAGE_WEBHOOKS')) return message.reply("Désolé, Vous n'avez pas les permissions !");
+        webhookurl = args[0];
+        webhookusername = args.slice(1).join(' ');
+        if(!webhookurl) return message.reply(`Vous devez spécifier l'url de l'avatar du webhook !`)
+        if(!webhookusername) return message.reply(`Vous devez spécifier le nom du webhook !`)
+        message.channel.createWebhook(webhookusername, webhookurl)
+        .then(webhook => webhook.edit(webhookusername, webhookurl)
+        .then(wb => message.author.send(`Vous avez crée un webhook !\nLe lien permet d'avoir différentes informations sur le webhook comme l'ID et le TOKEN\nLien du webhook: https://discordapp.com/api/webhooks/${wb.id}/${wb.token}\n**ATTENTION** vous ne devez jamais divulgez le TOKEN et l'ID du Webhook à d'autre personne !`)).catch(console.error))
+    }
+    if(command === "webhook-config-send") {
+        if (!message.member.hasPermission('MANAGE_WEBHOOKS')) return message.reply("Désolé, Vous n'avez pas les permissions !");
+        webhookid = args[0];
+        webhooktoken = args[1];
+        if(!webhookid) return message.reply(`Vous devez spécifier l'ID du webhook !`)
+        if(!webhooktoken) return message.reply(`Vous devez spécifier le TOKEN de webhook !`)
+        guildConf[message.guild.id] = {
+            prefix: `${guildConf[message.guild.id].prefix}`,
+            serverinvite: `${guildConf[message.guild.id].serverinvite}`,
+            webhookid: `${webhookid}`,
+            webhooktoken: `${webhooktoken}`
+        }
+         fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+             if (err) console.log(err)
+        })
+        message.reply(`Le TOKEN et l'ID sont maintenant enregistré dans la base de donnée`)
+    }
+    if(command === "webhook-send") {
+        if (!message.member.hasPermission('MANAGE_WEBHOOKS')) return message.reply("Désolé, Vous n'avez pas les permissions !");
+        if(!guildConf[message.guild.id].webhookid & guildConf[message.guild.id].webhooktoken) return message.reply(`Vous devez configurez le webhook !\nFaites la commande ${guildConf[message.guild.id].prefix}webhook-config-send`)
+        webhooksendtext = args.slice(0).join(' ');
+        if(!webhooksendtext) return message.reply(`Vous devez spécifier un texte !`)
+        Hook.login(guildConf[message.guild.id].webhookid, guildConf[message.guild.id].webhooktoken)
+        Hook.setPayload({
+            "content": webhooksendtext
+        })
+        Hook.fire()
+            .then(response_object => {
+        })
+            .catch(error => {
+            throw error;
+        })
+    }
+    if(command === "webhook-help") {
+        const embed = new Discord.RichEmbed()
+		  .setColor(`${config.colorembed}`)
+          .setTitle('Aide Webhook')
+          .setDescription(`**ATTENTION** vous ne devez jamais divulgez le TOKEN et l'ID du Webhook à d'autre personne !`)
+          .addField(`${guildConf[message.guild.id].prefix}webhook-create`, `Commande permettant de crée un webhook\nExemple: ${guildConf[message.guild.id].prefix}webhook-create https://i.imgur.com/kYMFIh8.png DiscordBot.Js`)
+          .addField(`${guildConf[message.guild.id].prefix}webhook-config-send`, `Commande permettant de configurer le webhook\nExemple: ${guildConf[message.guild.id].prefix}webhook-config-send ID TOKEN`)
+          .addField(`${guildConf[message.guild.id].prefix}webhook-send`, `Commande permettant d'envoyer un message avec le webhook`)
+		  .setTimestamp()
+          .setFooter('Webhook Beta Version');
+          message.channel.send(embed)
+    }
+})
+
+/*Add/Remove role*/
+client.on("message", async message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "add-role") {
+    if (!message.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return message.reply("Désolé, Vous n'avez pas les permissions !");
+    if (message.mentions.users.size === 0) return message.reply("S'il vous plaît mentionné un membre !`");
+    let member = message.guild.member(message.mentions.users.first());
+    if (!member) return message.reply("Le membre mentionné n'existe pas sur le serveur !");
+    let role = message.mentions.roles.first() || message.guild.roles.get(args[0]);
+    if (!role) return message.reply(`Le rôle ${name} n'existe pas sur le serveur`);
+    let botRolePosition = message.guild.member(client.user).highestRole.position;
+    let rolePosition = role.position;
+    let userRolePossition = message.member.highestRole.position;
+    if (userRolePossition <= rolePosition) return message.channel.send("Échec de l'ajout du rôle à l'utilisateur car votre rôle est inférieur au rôle spécifié.")
+    if (botRolePosition <= rolePosition) return message.channel.send("Échec de l'ajout du rôle à l'utilisateur car mon rôle est inférieur au rôle spécifié.");
+    member.addRole(role);
+    if(message.mentions.users.first() === message.author) {message.channel.send(`**${message.author.username}**, Vous vous êtes mis le rôle **${role}**.`);} else {
+    message.channel.send(`**${message.author.username}**, Vous avez ajoutés le rôle **${role}** à **${message.mentions.users.first().username}**.`);}
+    }
+    if (command === "remove-role") {
+        if (!message.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return message.reply("Désolé, Vous n'avez pas les permissions !");
+        if (message.mentions.users.size === 0) return message.reply("S'il vous plaît mentionné un membre !`");
+        let member = message.guild.member(message.mentions.users.first());
+        if (!member) return message.reply("Le membre mentionné n'existe pas sur le serveur !");
+    let role = message.mentions.roles.first() || message.guild.roles.get(args[0]);
+    let botRolePosition = message.guild.member(client.user).highestRole.position;
+    let rolePosition = role.position;
+    if (botRolePosition <= rolePosition) return message.channel.send("Échec de l'enlevement du rôle à l'utilisateur car mon rôle est inférieur au rôle spécifié.");
+    member.removeRole(role);
+    if(message.mentions.users.first() === message.author) {message.channel.send(`**${message.author.username}**, Vous vous êtes enlever le rôle **${role}**.`);} else {
+        message.channel.send(`**${message.author.username}**, Vous avez enlever le rôle **${role}** à **${message.mentions.users.first().username}**.`);}
+        }
+});
+
+/*Invite List*/
+client.on("message", message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "invite-list") {
+        let embed = new Discord.RichEmbed()
+        message.channel.send(`**Toutes les invitations des serveurs utilisant DiscordBot.Js**`)
+        client.guilds.forEach((guild) => {
+        guild.fetchInvites()
+        .then(invites => {
+        embed.setColor(`${config.colorembed}`)
+        embed.setTitle(`${guild.name}`)
+        embed.setDescription(invites.map(invite => invite).join('\n'));
+        message.channel.send(embed)})
+        .catch(console.error);
+    })
+}
 });
 
 /*Kick*/
@@ -608,7 +763,7 @@ client.on("message", message => {
 
 	  if(!target) return message.reply("S'il vous plait mentionné un membre valide !");
 
-	  if(!target.bannable) return message.reply("Je ne peut pas kicker ce membre !\nai-je les permissions pour kicker des membres ?");
+	  if(!target.bannable) return message.reply("Je ne peut pas bannir ce membre !\nai-je les permissions pour bannir des membres ?");
 
 	  if(!reason) reason = "Aucune Raison";
 
@@ -630,6 +785,31 @@ client.on("message", message => {
 	  setTimeout(function(){ 
 		target.ban(reason)
 	}, 1000);
+  }
+});
+
+/*Unban*/
+client.on("message", message => {
+	if(message.author.bot) return;
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+	const command = args.shift().toLowerCase();
+	if(command === "unban") {
+		if (!message.member.hasPermission('BAN_MEMBERS'))
+	  return message.reply("Désolé, Vous n'avez pas les permissions !");
+
+	  let target = args[0];
+      
+      if (!target) return message.reply("Vous devez spécifier l'ID de l'utilisateur !")
+
+        message.guild.unban(target).catch(e =>{
+            if(e){
+              return message.channel.send(`${client.users.get(`${args[0]}`).username} n'est pas bannie`);
+            } else {
+                return message.channel.send(`${client.users.get(`${args[0]}`).username} n'est pas sur le serveur`);
+            }
+            console.log(`${message.author.tag}` + " a débannie " + `${target.user.username}` + " car: " + `${reason}`)
+        })
   }
 });
 
@@ -674,7 +854,7 @@ client.on("message", async(message) => {
 		  .setFooter('Report Release Version');
 
 	const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-            const LogsChannelID = message.guild.channels.get(config.logs)
+            const LogsChannelID = message.guild.channels.get(guildConf[message.guild.id].logs_channel)
             if (LogsChannel) {
             LogsChannel.send(embed_report)
             }
@@ -755,7 +935,7 @@ client.on("message", async message => {
 			target.addRole(muteRole)
 				target.send(embed1);
 				const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-            			const LogsChannelID = message.guild.channels.get(config.logs)
+            			const LogsChannelID = message.guild.channels.get(guildConf[message.guild.id].logs_channel)
             				if (LogsChannel) {
                 				LogsChannel.send(embed3)
             				}
@@ -816,7 +996,7 @@ client.on("message", async message => {
 			target.removeRole(muteRole)
 				target.send(embed2);
 				const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-            			const LogsChannelID = message.guild.channels.get(config.logs)
+            			const LogsChannelID = message.guild.channels.get(guildConf[message.guild.id].logs_channel)
             				if (LogsChannel) {
                 				LogsChannel.send(embed4)
             				}
@@ -853,31 +1033,31 @@ client.on("message", (message) => {
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if(command === "chifoumi") {
-        let rps = ["ciseaux", "feuille", "pierre"];
-let i;
-if(!rps.includes(args[0])) return message.reply("S'il vous plaît, choisisez soit Pierre, Feuille ou Ciseaux.");
-if(args[0].includes("pierre")) {
-i = 2;
-}
-if(args[0].includes("feuille")) {
-i = 1;
-}
-if(args[0].includes("ciseaux")) {
-i = 0;
-}
-if(rps[i]) {
-let comp = Math.floor((Math.random() * 3) + 1);
-let comp_res = parseInt(comp) - parseInt("1");
-let comp_val = rps[parseInt(comp_res)];
-  if(i === comp_res) {
-    return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, il y a égalités.\nVous voulez réessayer ?`); 
-  }
-  if(i > comp_res) {
-    return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai gagné !\nBien joué.`);
-  } 
-  if(i < comp_res) {
-    return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai perdu !\nFélicitations pour avoir gagné !`);
-  }
+    let rps = ["ciseaux", "feuille", "pierre"];
+    let i;
+    if(!rps.includes(args[0])) return message.reply("S'il vous plaît, choisisez soit Pierre, Feuille ou Ciseaux.");
+    if(args[0].includes("pierre")) {
+        i = 2;
+    }
+    if(args[0].includes("feuille")) {
+        i = 1;
+    }
+    if(args[0].includes("ciseaux")) {
+        i = 0;
+    }
+    if(rps[i]) {
+        let comp = Math.floor((Math.random() * 3) + 1);
+        let comp_res = parseInt(comp) - parseInt("1");
+        let comp_val = rps[parseInt(comp_res)];
+    if(i === comp_res) {
+        return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, il y a égalités.\nVous voulez réessayer ?`); 
+    }
+    if(i > comp_res) {
+        return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai gagné !\nBien joué.`);
+    } 
+    if(i < comp_res) {
+        return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai perdu !\nFélicitations pour avoir gagné !`);
+    }
 }
   }
 });
@@ -1039,16 +1219,22 @@ client.on("message", message => {
     if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
-    const channelmention = message.mentions.channels.first() || message.channel;
     if (command === "logs-channel") {
+        const channelmention = message.mentions.channels.first() || message.channel;
         if (!message.member.hasPermission('VIEW_AUDIT_LOG')) return message.reply("Désolé, Vous n'avez pas les permissions !");
-        const collectorchannel = new Discord.MessageCollector(message.channel, m => m.author.id === message.author.id, { time: 10000 });
-        collectorchannel.on('collect', message => {
-        config.logs = channelmention;
-        if (!config.logs) return message.reply("Impossible de trouver le canal Logs !");
-        message.channel.send(`Les logs sont maintenant activés !\nSalon Logs: ${channelmention}`);
+        if (!channelmention) return message.reply("Impossible de trouver le salon !");
+        guildConf[message.guild.id] = {
+            prefix: `${guildConf[message.guild.id].prefix}`,
+            serverinvite: `${guildConf[message.guild.id].serverinvite}`,
+            webhookid: `${guildConf[message.guild.id].webhookid}`,
+            webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
+            logs_channel: `${channelmention.id}`
+        }
+         fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+             if (err) console.log(err)
         })
-    }
+        message.channel.send(`Les logs sont maintenant activés !\nSalon Logs: ${channelmention}`);
+        }
 });
 
 /*Help*/
@@ -1091,6 +1277,11 @@ client.on("message", message => {
 	        .setTitle(`Aide Commande n°2`)
         .addField(`${guildConf[message.guild.id].prefix}new-prefix`, `Commande permettant de changer le prefix du bot`)
             .addField(`${guildConf[message.guild.id].prefix}money-help`, `Aide pour le système d'argent`)
+            .addField(`${guildConf[message.guild.id].prefix}webhook-help`, `Aide pour configurer un webhook`)
+            .addField(`${guildConf[message.guild.id].prefix}invite-list`, `Commande permettant de voir toutes les invitations des serveurs connectée à DiscordBot.Js`)
+            .addField(`${guildConf[message.guild.id].prefix}add-role`, `Commande permettant d'ajouter un rôle à un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}remove-role`, `Commande permettant d'enlever un rôle à un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}unban`, `Commande permettant de débannir un membre`)
 	  message.channel.send(embed2);
 	  }
 });
@@ -1118,7 +1309,12 @@ function generateEmbedFields() {
 }
 
 client.on("message", message => {
-    if (message.content === `${guildConf[message.guild.id].prefix}reaction-role-create`) {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    const channelmention = message.mentions.channels.first() || message.channel;
+    if (command === "reaction-role-create") {
         if (!message.member.hasPermission('MANAGE_ROLES'))
 	return message.reply("Désolé, Vous n'avez pas les permissions !");
 
@@ -1275,7 +1471,7 @@ client.on('messageDelete', async (message) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = message.guild.channels.get(config.logs)
+        	  const LogsChannelID = message.guild.channels.get(guildConf[message.guild.id].logs_channel)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
@@ -1303,13 +1499,13 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
 		  .addField("Salon ID", `${newMessage.channel.id}`)
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
-		  const LogsChannel = newMessage.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = newMessage.guild.channels.get(config.logs)
+		  const LogsChannel = oldMessage.guild.channels.find(channel => channel.name === "📄logs");
+        	  const LogsChannelID = oldMessage.guild.channels.get(guildConf[oldMessage.guild.id].logs_channel)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return newMessage.reply("Impossible de trouver le salon Logs !");
+        			if (!LogsChannelID) return oldMessage.reply("Impossible de trouver le salon Logs !");
         				LogsChannelID.send(embed)
         		}
 })
@@ -1340,7 +1536,7 @@ client.on('channelCreate', async (channel, message) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = channel.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = channel.guild.channels.get(config.logs)
+        	  const LogsChannelID = channel.guild.channels.get(guildConf[channel.guild.id].logs_channel)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
@@ -1376,7 +1572,7 @@ client.on('channelDelete', async (channel, message) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = channel.guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = channel.guild.channels.get(config.logs)
+        	  const LogsChannelID = channel.guild.channels.get(guildConf[channel.guild.id].logs_channel)
         		if (LogsChannel) {
         			LogsChannel.send(embed)
         		}
@@ -1400,7 +1596,7 @@ client.on('guildBanAdd', async (guild, user) => {
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = guild.channels.get(config.logs)
+        	  const LogsChannelID = guild.channels.get(guildConf[guild.id].logs_channel)
         		if (LogsChannel) {
         			    setTimeout(function(){
                         LogsChannel.send(embed)
@@ -1422,11 +1618,33 @@ client.on('guildBanRemove', async (guild, user) => {
           .addField("Membre ID", user.id)
           .addField("Auteur", entry.executor)
           .addField("Auteur ID", entry.executor.id)
-          .addField("Raison", entry.reason || "Aucun")
 		  .setTimestamp()
 		  .setFooter('Logs Beta Version');
 		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = guild.channels.get(config.logs)
+        	  const LogsChannelID = guild.channels.get(guildConf[guild.id].logs_channel)
+        		if (LogsChannel) {
+                    LogsChannel.send(embed)
+        		}
+        		else if(!LogsChannel) {
+                    if (!LogsChannelID) return user.reply("Impossible de trouver le salon Logs !");
+                        LogsChannelID.send(embed)
+                }
+})
+
+client.on('guildBanRemove', async (guild, user) => {
+    let logs = await guild.fetchAuditLogs({type: 23});
+    let entry = logs.entries.first();
+	const embed = new Discord.RichEmbed()
+	  .setColor(`${config.colorembed}`)
+          .setTitle('Logs Membre Débannie')
+	  .addField("Membre", user)
+          .addField("Membre ID", user.id)
+          .addField("Auteur", entry.executor)
+          .addField("Auteur ID", entry.executor.id)
+		  .setTimestamp()
+		  .setFooter('Logs Beta Version');
+		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
+        	  const LogsChannelID = guild.channels.get(guildConf[guild.id].logs_channel)
         		if (LogsChannel) {
                     LogsChannel.send(embed)
         		}
