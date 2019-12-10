@@ -8,30 +8,13 @@
     <a href="https://top.gg/bot/629968935709835284"><img src="https://i.imgur.com/2x6O4zD.png" alt="Top.gg" /></a>
 </div>
 
-## Installation
+Tu veut un bot qui te fais de la pub sur touts les serveurs qui sont connectés au bot ?
+Eh bien il le fait !
 
-1 - Télécharger l'open source [DiscordBot.js Open Source](https://github.com/DiscordBotJs/DiscordBot.Js/archive/master.zip)
+DiscordBot.Js te permet de faire pleins de chose avec, comme gérer la modération de ton serveur, te donner pleins d'informations sur ton serveur, utiliser des fonctionnalités Discord avec de simple commande...
 
-2 - Extractez le fichier sur le bureau.
-
-3 - Ouvrez Visual Sudio ou autre et installer les différents Require !
-
-Liste des Require:
-
-npm install discord.js
-
-npm install discord-leveling
-
-npm install long
-
-npm install ytdl-core
-
-npm install ytsearcher
-
-npm install ytpl
-
-4 - Configurer le bot comme vous voulez !
-
-5 - Lancer le bot
+Alors vous attendez quoi ?
+Invitez le sur votre serveur !
+Le lien du site web de DiscordBot.Js: https://discordbotjs.github.io/DiscordBot.js-Website.io/
 
 [![Vidéo présentation](https://i.imgur.com/AxJ3nuQ.png)](https://youtu.be/cIFhTOgT4Oc)
