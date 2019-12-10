@@ -33,7 +33,7 @@ client.music.start(client, {
 	}
   });
 client.login(config.botToken);
-client.on('ready', () => {
+client.on('ready', (guild) => {
 		client.user.setActivity(`Mon prefix est ${config.prefix}`, {type: "WATCHING"});
 		client.user.setStatus("online");
     console.log("Connecté en tant que " + client.user.tag)
@@ -42,7 +42,7 @@ client.on('ready', () => {
         console.log(" - " + guild.name)
         if (!guildConf[guild.id]) {
             guildConf[guild.id] = {
-                prefix: config.prefix
+                prefix: config.prefix,
             }
             }
              fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
@@ -90,12 +90,12 @@ function timeConverter(timestamp)
 client.on('guildCreate', (guild) => {
     if (!guildConf[guild.id]) {
 	guildConf[guild.id] = {
-		prefix: config.prefix
+        prefix: config.prefix,
 	}
     }
      fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
      	if (err) console.log(err)
-	})
+    })
 });
 
 client.on('guildDelete', (guild) => {
@@ -308,7 +308,53 @@ client.on("message", message => {
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "server-info") {
+        let verifLevels = ["Aucun", "Faible", "Moyen", "(╯°□°）╯︵  ┻━┻", "┻━┻ミヽ(ಠ益ಠ)ノ彡┻━┻"];
+        let region = {
+            "brazil": "Brésil",
+            "eu-central": "Europe Central",
+            "singapore": "Singapour",
+            "us-central": "États-Unis Central",
+            "sydney": "Sydney",
+            "us-east": "Est des États-Unis",
+            "us-south": "Sud des États-Unis",
+            "us-west": "Ouest des États-Unis",
+            "eu-west": "Europe de l'Ouest",
+            "vip-us-east": "VIP U.S. East ?",
+            "london": "Londres",
+            "amsterdam": "Amsterdam",
+            "hongkong": "Hong Kong"
+        };
+        var emojis;
+        if (message.guild.emojis.size === 0) {
+            emojis = 'Aucun';
+        } else {
+            emojis = message.guild.emojis.size;
+        }
         let online = message.guild.members.filter(member => member.user.presence.status !== 'offline');
+        var verified;
+        if(message.guild.verified === false) {
+            verified = "Non";
+        } else {
+            verified = "Oui";
+        }
+        var afk_channel;
+        if(message.guild.afkChannel) {
+            afk_channel = message.guild.afkChannel;
+        } else {
+            afk_channel = "Aucun";
+        }
+        var afk_channelid;
+        if(message.guild.afkChannelID) {
+            afk_channelid = message.guild.afkChannelID;
+        } else {
+            afk_channelid = "Aucun";
+        }
+        var avaible;
+        if(message.guild.available) {
+            avaible = "Oui";
+        } else {
+            avaible = "Non";
+        }
         const embed = new Discord.RichEmbed()
             .setColor(`${config.colorembed}`)
             .setThumbnail('' + message.guild.iconURL + '')
@@ -316,16 +362,27 @@ client.on("message", message => {
             .addField("Nom du serveur", `${message.guild.name}`, true)
             .addField("ID du serveur", `${message.guild.id}`, true)
             .addField("Propriétaire", `${message.guild.owner}`, true)
-            .addField("Région", `${message.guild.region}`, true)
+            .addField("Région", region[message.guild.region], true)
             .addField("Salons", `${message.guild.channels.size}`, true)
+            .addField("Emojis", `${emojis}`, true)
             .addField("Rôles", `${message.guild.roles.size}`, true)
-            .addField("Total de membres", `${message.guild.memberCount - message.guild.members.filter(m => m.user.bot).size}`, true)
-            .addField("Bots", `${message.guild.members.filter(m => m.user.bot).size}`, true)
-            .addField("En ligne", `${online.size}`, true)
-            .addField(`Crée le`, `${timeConverter(message.guild.createdAt)}`, true)
-            .addField(`Vous avez rejoind le`, `${timeConverter(message.member.joinedAt)}`, true)
-            .setTimestamp()
-            .setFooter('Server info Release Version');
+            .addField(`Salon AFK`, `${afk_channel}`, true)
+            .addField(`ID du Salon AFK`, `${afk_channelid}`, true)
+            .addField("Délai avant AFK", message.guild.afkTimeout / 60 + ' minutes', true)
+            .addField("Niveaux de vérification", verifLevels[message.guild.verificationLevel], true)
+            .addField(`Verifié`, `${verified}`, true)
+            if(guildConf[message.guild.id].serverinvite) {
+                embed.addField(`Server invite`, `${guildConf[message.guild.id].serverinvite}`, true)
+            } else {
+                embed.addField(`Server invite`, `Aucun`, true)
+            }
+            embed.addField("Total de membres", `${message.guild.memberCount - message.guild.members.filter(m => m.user.bot).size}`, true)
+            embed.addField("Bots", `${message.guild.members.filter(m => m.user.bot).size}`, true)
+            embed.addField("En ligne", `${online.size}`, true)
+            embed.addField(`Crée le`, `${timeConverter(message.guild.createdAt)}`, true)
+            embed.addField(`Vous avez rejoind le`, `${timeConverter(message.member.joinedAt)}`, true)
+            embed.setTimestamp()
+            embed.setFooter('Server info Release Version');
         message.channel.send(embed);
     }
 });
@@ -339,14 +396,23 @@ client.on("message", message => {
     let user = message.author;
     const member = message.mentions.members.first() || message.guild.members.get(args[0]) || message.member;
     if (command === "user-info") {
+        var botuser;
+        if(member.user.bot) {
+            botuser = "Oui";
+        } else {
+            botuser = "Non";
+        }
         const embed = new Discord.RichEmbed()
             .setColor(`${config.colorembed}`)
             .setThumbnail('' + member.user.displayAvatarURL + '')
             .setTitle('Utlisateur Info')
             .addField("Pseudo", `${member}`, true)
             .addField("ID", `${member.id}`, true)
+            .addField("Bot", `${botuser}`, true)
             .addField("Crée le", `${timeConverter(member.user.createdAt)}`, true)
             .addField("Rejoind le", `${timeConverter(member.joinedAt)}`, true)
+            .addField("Dernier message", `${member.user.lastMessage}`, true)
+            .addField("Dernier message ID", `${member.user.lastMessageID}`, true)
             .addField("Status", `${member.user.presence.status}`, true)
             .addField("Status de jeux", `${member.presence.game ? member.presence.game.name : 'Aucun'}`, true)
             .addField("Rôles", `${member.roles.map(roles => `${roles.name}`).join(', ')}`, true)
@@ -369,15 +435,22 @@ client.on("message", message => {
             .setTitle('Bot Info', true)
             .addField("Nom du bot", `${client.user}`, true)
             .addField("ID du bot", `${client.user.id}`, true)
+            .addField("Version du bot", `${config.version}`, true)
             .addField("Crée le", `${timeConverter(client.user.createdAt)}`, true)
-            .addField("Sur", `${client.guilds.size} Serveurs`, true)
-            .addField("Developpeur", `Alex Animate Mp4#2361`, true)
-            .addField("Site web", `https://discordbotjs.github.io/DiscordBot.js-Website.io/`, true)
-            .addField("Serveur Support", `https://discordapp.com/invite/UqUsr5x`, true)
-            .addField("Dépôts Github", `https://github.com/DiscordBotJs/DiscordBot.Js`, true)
-            .addField(`Vidéo Présentation`, `https://youtu.be/cIFhTOgT4Oc`, true)
-            .setTimestamp()
-            .setFooter('Bot info Release Version');
+            .addField("Connecté depuis le", `${timeConverter(client.readyAt)}`, true)
+            if(client.guilds.size <= 2) {
+                embed.addField("Sur", `${client.guilds.size} Serveur`, true)
+            }
+            else {
+                embed.addField("Sur", `${client.guilds.size} Serveurs`, true)
+            }
+            embed.addField("Developpeur", `${config.creator}`, true)
+            embed.addField("Site web", `https://discordbotjs.github.io/DiscordBot.js-Website.io/`, true)
+            embed.addField("Serveur Support", `${config.invitesupport}`, true)
+            embed.addField("Dépôts Github", `https://github.com/DiscordBotJs/DiscordBot.Js`, true)
+            embed.addField(`Vidéo Présentation`, `${config.videopresentation}`, true)
+            embed.setTimestamp()
+            embed.setFooter('Bot info Release Version');
         message.channel.send(embed);
     }
 });
@@ -395,6 +468,8 @@ client.on("message", message => {
         text: 'Salon textuel',
         voice: 'Salon vocal',
         category: 'Catégorie',
+        news: `Actualités`,
+        store: 'Magasins',
         unknown: 'Inconnue',
     };
     if (command === "channel-info") {
@@ -430,10 +505,13 @@ client.on("message", message => {
             .setTitle('Channel Info', true)
             .addField("Nom du rôle", role.name, true)
             .addField("Id", role.id, true)
+            .addField("Position", role.calculatedPosition, true)
             .addField("Crée le", timeConverter(role.createdAt), true)
             .addField("Epinglés", role.hoist ? 'Oui' : 'Non', true)
             .addField("Mentionable", role.mentionable ? 'Oui' : 'Non', true)
+            .addField("Permissions", role.permissions, true)
             .addField("Couleur", role.color, true)
+            .addField("Couleur en Hexadécimal", role.hexColor, true)
             .setTimestamp()
             .setFooter('Role info Release Version');
         message.channel.send(embed);
@@ -447,7 +525,7 @@ client.on("message", message => {
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "server-list") {
-        message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres`));
+        message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres | Propriétaire ${r.owner} | Région ${r.region}`));
     }
 });
 
@@ -464,6 +542,13 @@ client.on("message", async message => {
         maxUses: 0
     })
     if (command === "server-invite") {
+            guildConf[message.guild.id] = {
+                prefix: `${guildConf[message.guild.id].prefix}`,
+                serverinvite: `${invite}`
+            }
+             fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+                 if (err) console.log(err)
+            })
         message.channel.send(`Lien d'invitation: ${invite}`);
     }
 });
