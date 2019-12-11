@@ -1,6 +1,5 @@
 # DiscordBot.js
-> DiscordBot.js est un exemple de bot avancée
-is a french bot !
+> DiscordBot.js est un exemple de bot avancée - is a french bot !
 
 <div align="left">
     <a href="https://discord.gg/invite/UqUsr5x"><img src="https://i.imgur.com/WlH9SJ0.png" alt="Discord server" /></a>
