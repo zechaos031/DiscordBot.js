@@ -1,4 +1,4 @@
-# DiscordBot.js
+## DiscordBot.js
 > DiscordBot.js est un exemple de bot avancée - is a french bot !
 
 ---
@@ -10,7 +10,7 @@
   </p>
 </div>
 
-# Introduction:
+## Introduction:
 
 Tu veut un bot qui te fais de la pub sur touts les serveurs qui sont connectés au bot ?
 Eh bien il le fait !
@@ -22,7 +22,7 @@ Invitez le sur votre serveur !
 
 ---
 
-# Commande:
+## Commande:
 
 - +server-info : Affiche les informations du serveur.
 - +user-info : Afiiche vos informations non personnel.
@@ -58,7 +58,7 @@ Invitez le sur votre serveur !
 
 ---
 
-# Autres informations
+## Autres informations
 
 étant le créateur de DiscordBot.Js (Alex Animate Mp4#2361), je suis le seul développeur de ce bot.
 
