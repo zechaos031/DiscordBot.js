@@ -1,8 +1,6 @@
 ## DiscordBot.js
 > DiscordBot.js est un exemple de bot avancée - is a french bot !
 
----
-
 <div>
   <p>
     <a href="https://discord.gg/invite/UqUsr5x"><img src="https://i.imgur.com/WlH9SJ0.png" alt="Discord server"></a>
@@ -19,8 +17,6 @@ DiscordBot.Js te permet de faire pleins de chose avec, comme gérer la modérati
 
 Alors vous attendez quoi ?
 Invitez le sur votre serveur !
-
----
 
 ## Commande:
 
@@ -55,8 +51,6 @@ Invitez le sur votre serveur !
 - +add-role : Commande permettant d'ajouter un rôle à un membre.
 - +remove-role : Commande permettant d'enlever un rôle à un membre.
 - +unban : Commande permettant de débannir un membre.
-
----
 
 ## Autres informations
 
