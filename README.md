@@ -26,7 +26,7 @@ Invitez le sur votre serveur !
 - +channel-info : Affiche les informations d'un salon.
 - +role-info : Affiche les informations d'un rôle.
 - +server-list : Affiche les serveurs où le bot est connecté.
-- +server-invite : Commande permettant de générer un lien d'invitation du serveur.
+- +server-invite : Commande permettant de générer un lien d'invitation du serveur, Cette commande est maintenant destiner pour faire de la pub pour vos serveurs !
 - +kick : Commande permettant de kicker un membre.
 - +ban : Commande permettant de bannir un membre.
 - +report : Commande permettant de reporter un membre.
@@ -47,10 +47,11 @@ Invitez le sur votre serveur !
 - +new-prefix : Commande permettant de changer le prefix du bot.
 - +money-help : Aide pour le système d'argent.
 - +webhook-help : Aide pour configurer un webhook.
-- +invite-list : Commande permettant de voir toutes les invitations des serveurs connectée à DiscordBot.Js.
+- +invite-list : Cette commande a été remplacé par +server-list.
 - +add-role : Commande permettant d'ajouter un rôle à un membre.
 - +remove-role : Commande permettant d'enlever un rôle à un membre.
 - +unban : Commande permettant de débannir un membre.
+- +news : Commande permettant de recevoir des actualités de DiscordBot.Js.
 
 ## Autres informations
 
