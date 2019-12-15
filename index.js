@@ -44,12 +44,7 @@ client.on('ready', () => {
         console.log(" - " + guild.name)
         if (!guildConf[guild.id]) {
             guildConf[guild.id] = {
-                prefix: config.prefix,
-                news: `${guildConf[guild.id].news}`,
-                serverinvite: `${guildConf[guild.id].serverinvite}`,
-                webhookid: `${guildConf[guild.id].webhookid}`,
-                webhooktoken: `${guildConf[guild.id].webhooktoken}`,
-                logs_channel: `${guildConf[guild.id].logs_channel}`
+                prefix: config.prefix
             }
             }
              fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
@@ -99,12 +94,7 @@ client.on('guildCreate', (guild) => {
     const everyoneRole = client.guilds.get(guild.id).roles.find(x => x.name === '@everyone');
     if (!guildConf[guild.id]) {
 	guildConf[guild.id] = {
-        prefix: config.prefix,
-        news: `${guildConf[guild.id].news}`,
-        serverinvite: `${guildConf[guild.id].serverinvite}`,
-        webhookid: `${guildConf[guild.id].webhookid}`,
-        webhooktoken: `${guildConf[guild.id].webhooktoken}`,
-        logs_channel: `${guildConf[guild.id].logs_channel}`
+        prefix: config.prefix
 	}
     }
      fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
