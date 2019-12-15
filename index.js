@@ -45,11 +45,11 @@ client.on('ready', () => {
         if (!guildConf[guild.id]) {
             guildConf[guild.id] = {
                 prefix: config.prefix,
-                news: `${guildConf[message.guild.id].news}`,
-                serverinvite: `${guildConf[message.guild.id].serverinvite}`,
-                webhookid: `${guildConf[message.guild.id].webhookid}`,
-                webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
-                logs_channel: `${guildConf[message.guild.id].logs_channel}`
+                news: `${guildConf[guild.id].news}`,
+                serverinvite: `${guildConf[guild.id].serverinvite}`,
+                webhookid: `${guildConf[guild.id].webhookid}`,
+                webhooktoken: `${guildConf[guild.id].webhooktoken}`,
+                logs_channel: `${guildConf[guild.id].logs_channel}`
             }
             }
              fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
@@ -100,11 +100,11 @@ client.on('guildCreate', (guild) => {
     if (!guildConf[guild.id]) {
 	guildConf[guild.id] = {
         prefix: config.prefix,
-        news: `${guildConf[message.guild.id].news}`,
-        serverinvite: `${guildConf[message.guild.id].serverinvite}`,
-        webhookid: `${guildConf[message.guild.id].webhookid}`,
-        webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
-        logs_channel: `${guildConf[message.guild.id].logs_channel}`
+        news: `${guildConf[guild.id].news}`,
+        serverinvite: `${guildConf[guild.id].serverinvite}`,
+        webhookid: `${guildConf[guild.id].webhookid}`,
+        webhooktoken: `${guildConf[guild.id].webhooktoken}`,
+        logs_channel: `${guildConf[guild.id].logs_channel}`
 	}
     }
      fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
