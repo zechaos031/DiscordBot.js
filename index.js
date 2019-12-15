@@ -91,6 +91,7 @@ function timeConverter(timestamp)
 }
 
 client.on('guildCreate', (guild) => {
+    const everyoneRole = client.guilds.get(guild.id).roles.find(x => x.name === '@everyone');
     if (!guildConf[guild.id]) {
 	guildConf[guild.id] = {
         prefix: config.prefix,
@@ -306,6 +307,70 @@ client.on('message', async message => {
 	if (message.content === '+quit') {
 		client.emit('guildMemberRemove', message.member || await message.guild.fetchMember(message.author));
 	}
+});
+
+client.on('message', async message => {
+	if (message.content === '+invite-list') {
+		message.reply(`Cette commande a été remplacée par ${guildConf[message.guild.id].prefix}server-list !`)
+	}
+});
+
+/*Actualités*/
+client.on("message", message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "news") {
+        const channelexist = message.guild.channels.find(x => x.name === "actualités-discordbotjs")
+        const everyoneRole = client.guilds.get(message.guild.id).roles.find('name', '@everyone');
+        const news_name = "actualités-discordbotjs";
+        if(channelexist) {
+            if(!guildConf[message.guild.id].news) {
+                guildConf[message.guild.id] = {
+                    prefix: `${guildConf[message.guild.id].prefix}`,
+                    news: `Activé`,
+                    serverinvite: `${guildConf[message.guild.id].serverinvite}`,
+                    webhookid: `${guildConf[message.guild.id].webhookid}`,
+                    webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
+                    logs_channel: `${guildConf[message.guild.id].logs_channel}`
+                }
+                 fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+                     if (err) console.log(err)
+                })
+            }
+            return message.reply(`Le salon existe dejà !`)
+        }
+        message.guild.createChannel(news_name, 'text')
+        .then(r => {
+        r.overwritePermissions(message.author.id, { SEND_MESSAGES: true });
+        r.overwritePermissions(client.user.id, { SEND_MESSAGES: true });
+        r.overwritePermissions(everyoneRole, { SEND_MESSAGES: false });
+        r.send(`>>> **IMPORTANT** ne jamais supprimer ou renommer ce salon !\nSi vous renommez le nom ou supprimer le salon, Vous n'aurez pas accés aux actualités de DiscordBot.Js`)
+        })
+        guildConf[message.guild.id] = {
+            prefix: `${guildConf[message.guild.id].prefix}`,
+            news: `Activé`,
+            serverinvite: `${guildConf[message.guild.id].serverinvite}`,
+            webhookid: `${guildConf[message.guild.id].webhookid}`,
+            webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
+            logs_channel: `${guildConf[message.guild.id].logs_channel}`
+        }
+         fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
+             if (err) console.log(err)
+        })
+        }
+        if(command === "send-news") {
+            if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            let message_all = args.slice(0).join(' ');
+            const embed = new Discord.RichEmbed()
+            .setColor(`${config.colorembed}`)
+            .setTitle('Actualités DiscordBot.Js')
+            .setDescription(`${message_all}`)
+            .setTimestamp()
+            .setFooter('Actualités DiscordBot.Js Release Version');
+        client.channels.findAll('name', 'actualités-discordbotjs').map(channel => channel.send({embed}))
+        }
 });
 
 /*Server Info*/
@@ -557,7 +622,7 @@ client.on("message", message => {
             "amsterdam": ":flag_nl: Amsterdam",
             "hongkong": ":flag_hk: Hong Kong"
         };
-        message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres | Propriétaire **${r.owner ? r.owner.displayName : 'Aucun'}** | Région **${region[r.region]}**`));
+        message.channel.send(client.guilds.map(r => r.name + ` | **${r.memberCount}** membres | Propriétaire **${r.owner ? r.owner.displayName : 'Aucun'}** | Région **${region[r.region]}** | Invitation **${guildConf[r.id].serverinvite ? `${guildConf[r.id].serverinvite}` : 'Aucun'}** | Actualités DiscordBot.Js: **${guildConf[r.id].news ? 'Activé' : 'Désactivé'}**`))
     }
 });
 
@@ -575,13 +640,17 @@ client.on("message", async message => {
         })
             guildConf[message.guild.id] = {
                 prefix: `${guildConf[message.guild.id].prefix}`,
-                serverinvite: `${invite}`
+                news: `${guildConf[message.guild.id].news}`,
+                serverinvite: `discord.gg/${invite.code}`,
+                webhookid: `${guildConf[message.guild.id].webhookid}`,
+                webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
+                logs_channel: `${guildConf[message.guild.id].logs_channel}`
             }
              fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
                  if (err) console.log(err)
             })
-        message.channel.send(`Lien d'invitation: ${invite}`);
-        console.log(`${message.guild.id} a crée une invitation ${invite}`)
+        message.channel.send(`Lien d'invitation: https://${guildConf[message.guild.id].serverinvite}`);
+        console.log(`${message.guild.name} (${message.guild.id}) a crée une invitation ${invite}`)
     }
 });
 
@@ -609,9 +678,11 @@ client.on("message", async message => {
         if(!webhooktoken) return message.reply(`Vous devez spécifier le TOKEN de webhook !`)
         guildConf[message.guild.id] = {
             prefix: `${guildConf[message.guild.id].prefix}`,
+            news: `${guildConf[message.guild.id].news}`,
             serverinvite: `${guildConf[message.guild.id].serverinvite}`,
             webhookid: `${webhookid}`,
-            webhooktoken: `${webhooktoken}`
+            webhooktoken: `${webhooktoken}`,
+            logs_channel: `${guildConf[message.guild.id].logs_channel}`
         }
          fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
              if (err) console.log(err)
@@ -685,7 +756,7 @@ client.on("message", async message => {
         }
 });
 
-/*Invite List*/
+/*Invite List
 client.on("message", message => {
     if (message.author.bot) return;
     if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
@@ -705,6 +776,7 @@ client.on("message", message => {
     })
 }
 });
+*/
 
 /*Kick*/
 client.on("message", async message => {
@@ -806,8 +878,8 @@ client.on("message", message => {
             } else {
                 return message.channel.send(`${client.users.get(`${args[0]}`).username} n'est pas sur le serveur`);
             }
-            console.log(`${message.author.tag}` + " a débannie " + `${target.user.username}` + " car: " + `${reason}`)
         })
+        console.log(`${message.author.username}` + " a débannie " + `${target.user.username}` + " car: " + `${reason}`)
   }
 });
 
@@ -821,8 +893,25 @@ client.on("message", async(message) => {
 	if (!message.member.hasPermission('KICK_MEMBERS'))
 	return message.reply("Désolé, Vous n'avez pas les permissions !");
 
-	let target = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]))
-	let reason = args.slice(1).join(' ');
+    let target = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]))
+    let reportRole = message.guild.roles.find(x => x.name === "Reported");
+    let reason = args.slice(1).join(' ');
+    
+    if(!reportRole) {
+        try{
+            reportRole = await message.guild.createRole({
+                name: "Reported",
+                color: "#514f48",
+                permissions: []
+            })
+            message.guild.channels.forEach(async (channel, id) => {
+                await channel.overwritePermissions(reportRole, {
+                })
+            })
+        } catch(e) {
+            console.log(e.stack);
+        }
+    }
 
 	if(!target) return message.reply("S'il vous plait mentionné un membre valide !");
 	if(!reason) reason = "Aucune Raison";
@@ -851,6 +940,7 @@ client.on("message", async(message) => {
 		  .setTimestamp()
 		  .setFooter('Report Release Version');
 
+			target.addRole(reportRole)
 	const LogsChannel = message.guild.channels.find(channel => channel.name === "📄logs");
             const LogsChannelID = message.guild.channels.get(guildConf[message.guild.id].logs_channel)
             if (LogsChannel) {
@@ -862,7 +952,7 @@ client.on("message", async(message) => {
             }
 	message.channel.send(`Signalement effectué ${message.author} !`);
 	target.send(embed_report_message);
-	console.log(`${message.author.tag}` + " a reporté " + `${target.user.username}` + " car: " + `${reason}`)
+    console.log(`${message.author.username}` + " a reporté " + `${target.user.username}` + " car: " + `${reason}`)
 	}
 });
 
@@ -877,7 +967,7 @@ client.on("message", async message => {
 	  return message.reply("Désolé, Vous n'avez pas les permissions !");
 
 	  let target = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]))
-	  let muteRole = message.guild.roles.find(`name`, "Muted");
+	  let muteRole = message.guild.roles.find(x => x.name === "Muted");
 	  let reason = args.slice(1).join(' ');
 
 		  if(!muteRole) {
@@ -941,9 +1031,9 @@ client.on("message", async message => {
             					if (!LogsChannelID) return message.reply("Impossible de trouver le salon Logs !");
                 					LogsChannelID.send(embed3)
             				}
-				console.log(`${message.author.tag}` + " a mute " + `${target.user.username}` + " car: " + `${reason}`)
+				console.log(`${message.author.username}` + " a mute " + `${target.user.username}` + " car: " + `${reason}`)
 			} else {
-				message.channel.send(target.user + ` est déjà mute !`);
+				message.channel.send(target + ` est déjà mute !`);
 			  }
 	}
 });
@@ -959,7 +1049,7 @@ client.on("message", async message => {
 	  return message.reply("Désolé, Vous n'avez pas les permissions !");
 
 	  let target = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]))
-	  let muteRole = message.guild.roles.find(`name`, "Muted");
+	  let muteRole = message.guild.roles.find(x => x.name === "Muted");
 	  let reason = args.slice(1).join(' ');
 
 	  if(!target) return message.reply("S'il vous plait mentionné un membre valide !");
@@ -1002,9 +1092,9 @@ client.on("message", async message => {
             					if (!LogsChannelID) return message.reply("Impossible de trouver le salon Logs !");
                 					LogsChannelID.send(embed4)
             				}
-				console.log(`${message.author.tag}` + " a unmute " + `${target.user.username}` + " car: " + `${reason}`)
+				console.log(`${message.author.username}` + " a unmute " + `${target.user.username}` + " car: " + `${reason}`)
 			} else {
-				message.channel.send(target.user + ` n'as pas était mute !`);
+				message.channel.send(target + ` n'as pas était mute !`);
 			  }
 		  }
 });
@@ -1025,38 +1115,36 @@ client.on("message", message => {
 });
 
 /*Pierre, Feuille, Ciseaux*/
-client.on("message", (message) => {
+client.on("message", async (message) => {
     if(message.author.bot) return;
     if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
-    if(command === "chifoumi") {
-    let rps = ["ciseaux", "feuille", "pierre"];
-    let i;
-    if(!rps.includes(args[0])) return message.reply("S'il vous plaît, choisisez soit Pierre, Feuille ou Ciseaux.");
-    if(args[0].includes("pierre")) {
-        i = 2;
-    }
-    if(args[0].includes("feuille")) {
-        i = 1;
-    }
-    if(args[0].includes("ciseaux")) {
-        i = 0;
-    }
-    if(rps[i]) {
-        let comp = Math.floor((Math.random() * 3) + 1);
-        let comp_res = parseInt(comp) - parseInt("1");
-        let comp_val = rps[parseInt(comp_res)];
-    if(i === comp_res) {
-        return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, il y a égalités.\nVous voulez réessayer ?`); 
-    }
-    if(i > comp_res) {
-        return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai gagné !\nBien joué.`);
-    } 
-    if(i < comp_res) {
-        return message.channel.send(`Vous avez choisi **${args [0]}** et j'ai choisi **${comp_val}**, j'ai perdu !\nFélicitations pour avoir gagné !`);
-    }
-}
+    if(command === "rps") {
+        let replies = ['💎', '📰', '✂️'];
+        let result = Math.floor((Math.random() * replies.length));
+        let uReply = "";
+        message.reply(`Réagissez aux émoji :gem: ou :newspaper: ou :scissors: !`)
+            message.react(`💎`)
+            message.react(`📰`)
+            message.react(`✂️`)
+        message.awaitReactions((reaction, user) => user.id === message.author.id && (reaction.emoji.name === '💎' || reaction.emoji.name === '📰' || reaction.emoji.name === '✂️'),
+                            { max: 1, time: 30000 }).then(collected => {
+                                    if (collected.first().emoji.name === '💎') {
+                                            if (replies[result] === '📰') return message.channel.send(`J'ai gagnés !`);
+                                            else return message.channel.send('Tu as gagnés !');
+                                    }
+                                    if (collected.first().emoji.name === '📰') {
+                                            if (replies[result] === '✂️') return message.channel.send(`J'ai gagnés !`);
+                                            else return message.channel.send('Tu as gagnés !');
+                                    }
+                                    if (collected.first().emoji.name === '✂️') {
+                                            if (replies[result] === '💎') return message.channel.send(`J'ai gagnés !`);
+                                            else return message.channel.send('Tu as gagnés !');
+                                    }
+                                    }).catch(collected => {
+                                        message.reply('Aucune réaction après 30 secondes, opération annulée');
+                                });
   }
 });
 
@@ -1223,6 +1311,7 @@ client.on("message", message => {
         if (!channelmention) return message.reply("Impossible de trouver le salon !");
         guildConf[message.guild.id] = {
             prefix: `${guildConf[message.guild.id].prefix}`,
+            news: `${guildConf[message.guild.id].news}`,
             serverinvite: `${guildConf[message.guild.id].serverinvite}`,
             webhookid: `${guildConf[message.guild.id].webhookid}`,
             webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
@@ -1251,7 +1340,7 @@ client.on("message", message => {
             .addField(`${guildConf[message.guild.id].prefix}channel-info`, `Affiche les informations d'un salon`)
             .addField(`${guildConf[message.guild.id].prefix}role-info`, `Affiche les informations d'un rôle`)
 	    .addField(`${guildConf[message.guild.id].prefix}server-list`, `Affiche les serveurs où le bot est connecté`)
-	    .addField(`${guildConf[message.guild.id].prefix}server-invite`, `Commande permettant de générer un lien d'invitation du serveur`)
+	    .addField(`${guildConf[message.guild.id].prefix}server-invite`, `Commande permettant de générer un lien d'invitation du serveur\nCette commande est maintenant destiner pour faire de la pub pour vos serveurs !`)
             .addField(`${guildConf[message.guild.id].prefix}kick`, `Commande permettant de kicker un membre`)
             .addField(`${guildConf[message.guild.id].prefix}ban`, `Commande permettant de bannir un membre`)
             .addField(`${guildConf[message.guild.id].prefix}report`, `Commande permettant de reporter un membre`)
@@ -1273,13 +1362,14 @@ client.on("message", message => {
       const embed2 = new Discord.RichEmbed()
 	        .setColor(`${config.colorembed}`)
 	        .setTitle(`Aide Commande n°2`)
-        .addField(`${guildConf[message.guild.id].prefix}new-prefix`, `Commande permettant de changer le prefix du bot`)
+            .addField(`${guildConf[message.guild.id].prefix}new-prefix`, `Commande permettant de changer le prefix du bot`)
             .addField(`${guildConf[message.guild.id].prefix}money-help`, `Aide pour le système d'argent`)
             .addField(`${guildConf[message.guild.id].prefix}webhook-help`, `Aide pour configurer un webhook`)
-            .addField(`${guildConf[message.guild.id].prefix}invite-list`, `Commande permettant de voir toutes les invitations des serveurs connectée à DiscordBot.Js`)
+            .addField(`${guildConf[message.guild.id].prefix}invite-list`, `Cette commande a été remplacé par ${guildConf[message.guild.id].prefix}server-list`)
             .addField(`${guildConf[message.guild.id].prefix}add-role`, `Commande permettant d'ajouter un rôle à un membre`)
             .addField(`${guildConf[message.guild.id].prefix}remove-role`, `Commande permettant d'enlever un rôle à un membre`)
             .addField(`${guildConf[message.guild.id].prefix}unban`, `Commande permettant de débannir un membre`)
+            .addField(`${guildConf[message.guild.id].prefix}news`, `Commande permettant de recevoir des actualités de DiscordBot.Js`)
 	  message.channel.send(embed2);
 	  }
 });
@@ -1508,6 +1598,7 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
         		}
 })
 
+/*
 client.on('channelCreate', async (channel, message) => {
     const channelTypes = {
         dm: 'Message privés',
@@ -1579,6 +1670,7 @@ client.on('channelDelete', async (channel, message) => {
         				LogsChannelID.send(embed)
         		}
 })
+*/
 
 client.on('guildBanAdd', async (guild, user) => {
     let logs = await guild.fetchAuditLogs({type: 22});
@@ -2485,11 +2577,11 @@ client.on("message", message => {
 client.on("message", message => {
     if (message.author.bot) return;
     if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
-    if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
-	  return message.reply("Désolé, Vous n'avez pas les permissions !");
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "new-prefix") {
+        if (!message.member.hasPermission('ADMINISTRATOR'))
+	  return message.reply("Désolé, Vous n'avez pas les permissions !");
         let newPrefix = message.content.split(" ").slice(1, 2)[0];
         guildConf[message.guild.id].prefix = newPrefix;
 	    if (!guildConf[message.guild.id].prefix) {
@@ -2506,13 +2598,11 @@ client.on("message", message => {
 client.on('message', async message => {
     if (message.author.bot) return;
     if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
-    if (!message.member.hasPermission('CREATE_INSTANT_INVITE'))
-	  return message.reply("Désolé, Vous n'avez pas les permissions !");
     const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     if (command === "add-money") {
         if (!message.member.hasPermission('ADMINISTRATOR')) {
-            return message.reply('You do not have enough permission to use this command.')
+            return message.reply(`Désolé, Vous n'avez pas les permissions !`)
         }
     
         if (!args[0]) return message.reply(`S'il vous plaît, veuillez spécifier une valeur.`)
@@ -2524,7 +2614,7 @@ client.on('message', async message => {
     }
     if (command === "remove-money") {
         if (!message.member.hasPermission('ADMINISTRATOR')) {
-            return message.reply('You do not have enough permission to use this command.')
+            return message.reply(`Désolé, Vous n'avez pas les permissions !`)
         }
     
         if (!args[0]) return message.reply(`S'il vous plaît, veuillez spécifier une valeur.`)
