@@ -1,4 +1,3 @@
-/*Ne touchez c'est valeurs que si vous êtes sur de ce que vous faites !*/
 const Discord = require('discord.js');
 const client = new Client({ disableEveryone: true });
 client.login(process.env.TOKEN);
@@ -46,7 +45,7 @@ client.on("message", message => {
             if (message.author.id !== process.env.OWNERID) return message.reply("Désolé, Vous n'avez pas les permissions !")
             let message_all = args.slice(0).join(' ');
             const embed = new Discord.RichEmbed()
-            .setColor(`${config.colorembed}`)
+            .setColor(`#F7DF1E`)
             .setTitle('Actualités DiscordBot.Js')
             .setDescription(`${message_all}`)
             .setTimestamp()
