@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const client = new Client({ disableEveryone: true });
+const client = new Discord({ disableEveryone: true });
 client.login(process.env.TOKEN);
 client.on('ready', () => {
 	client.user.setActivity(`+status`, {type: "WATCHING"});
