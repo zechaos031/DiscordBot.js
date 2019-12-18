@@ -879,7 +879,7 @@ client.on("message", message => {
                 return message.channel.send(`${client.users.get(`${args[0]}`).username} n'est pas sur le serveur`);
             }
         })
-        console.log(`${message.author.username}` + " a débannie " + `${target.user.username}` + " car: " + `${reason}`)
+        console.log(`${message.author.tag}` + " a débannie " + `${target.user.username}` + " car: " + `${reason}`)
   }
 });
 
