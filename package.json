@@ -1,0 +1,29 @@
+{
+    "name": "discordbot.js",
+    "version": "1.4.0",
+    "description": "Un bot discord en JavaScript crée par Alex Animate Mp4#2361",
+    "main": "index.js",
+    "scripts": {
+        "start": "node .",
+        "test": "node index.js"
+    },
+    "dependencies": {
+        "discord.js": "^11.5.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DiscordBotJs/DiscordBot.Js"
+    },
+    "homepage": "https://github.com/DiscordBotJs/DiscordBot.Js",
+    "keywords": [
+        "discord",
+        "discord.js",
+        "music",
+        "bot",
+        "addon",
+        "plugin"
+    ],
+    "engines": {},
+    "author": "Alex Animate Mp4",
+    "license": "None"
+}
