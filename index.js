@@ -53,4 +53,15 @@ client.on("message", message => {
             .setFooter('Actualités DiscordBot.Js Release Version');
         client.channels.findAll('name', 'actualités-discordbotjs').map(channel => channel.send({embed}))
         }
+	if(command === "send-news-image") {
+            if (message.author.id !== process.env.OWNERID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            let message_image = args.slice(0).join(' ');
+            const embed = new Discord.RichEmbed()
+            .setColor(`#F7DF1E`)
+            .setTitle('Actualités DiscordBot.Js')
+            .setImage(`${message_image}`)
+            .setTimestamp()
+            .setFooter('Actualités DiscordBot.Js Release Version');
+        client.channels.findAll('name', 'actualités-discordbotjs').map(channel => channel.send({embed}))
+        }
 });
