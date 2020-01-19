@@ -51,4 +51,4 @@ client.commands.start(client, {
 	  enabled: true
 	}
 });
-client.login(config.botToken);
+client.login(process.env.TOKEN);
