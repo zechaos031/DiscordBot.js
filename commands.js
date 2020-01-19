@@ -9,7 +9,6 @@ const ms = require('parse-ms');
 const config = require("./config.js");
 const guildConf = require('./config.json');
 const language = require("./language.js");
-const CONFIG = require('./config');
 const PACKAGE = require('./package.json');
 const fs = require("fs");
 const wait = require('util').promisify(setTimeout);
