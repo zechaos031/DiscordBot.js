@@ -8,13 +8,27 @@
         "test": "node index.js"
     },
     "dependencies": {
-        "discord.js": "^11.5.1"
+        "canvas": "^2.6.0",
+        "discord-leveling": "^1.0.3",
+        "discord.js": "^11.5.1",
+        "economy-discord": "0.0.2",
+        "enmap": "^5.2.3",
+        "ffmpeg": "0.0.4",
+        "long": "^4.0.0",
+        "ms": "^2.1.2",
+        "opusscript": "0.0.7",
+        "parse-ms": "^2.1.0",
+        "quick.db": "^7.0.0-b22",
+        "sqlite3": "^4.1.1",
+        "ytdl-core": "^0.29.5",
+        "ytpl": "^0.1.15",
+        "ytsearcher": "^1.2.2"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/DiscordBotJs/DiscordBot.Js"
+        "url": "https://github.com/AlexAnimateMP4/DiscordBot.js"
     },
-    "homepage": "https://github.com/DiscordBotJs/DiscordBot.Js",
+    "homepage": "https://github.com/AlexAnimateMP4/DiscordBot.js",
     "keywords": [
         "discord",
         "discord.js",
@@ -23,7 +37,9 @@
         "addon",
         "plugin"
     ],
-    "engines": {},
+    "engines": {
+        "node": "11.10.0"
+    },
     "author": "Alex Animate Mp4",
     "license": "None"
 }
