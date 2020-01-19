@@ -8,7 +8,7 @@ module.exports = {
 	colorembed: "#F7DF1E", // Couleur du l'embed
 	picturewelcomeleave: "https://i.imgur.com/2rNY0D1.png", // Image des messages Welcome et Leave
 	creator: "Alex Animate Mp4#2361", // Créateur du bot
-	version: "1.4.0", // Version du bot
+	version: "1.5.0", // Version du bot
 	invitesupport: "https://disboard.org/fr/server/629960788840546304", // Invitation Discord pour le support server
 	videopresentation: "https://youtu.be/cIFhTOgT4Oc", // Vidéo présentation (peut être mise à jour !)
 	langue: "french", // La langue du bot
