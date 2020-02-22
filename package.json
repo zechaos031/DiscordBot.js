@@ -8,31 +8,27 @@
         "test": "node index.js"
     },
     "dependencies": {
-        "canvas": "^2.6.1",
-        "discord-leveling": "^1.1.0",
+        "canvas": "^2.6.0",
+        "discord-leveling": "^1.0.3",
         "discord.js": "^11.5.1",
         "economy-discord": "0.0.2",
         "enmap": "^5.2.3",
         "ffmpeg": "0.0.4",
-        "fs": "0.0.1-security",
         "long": "^4.0.0",
-        "m3u8-parser": "^4.4.0",
-        "m3u8stream": "^0.6.4",
         "ms": "^2.1.2",
         "opusscript": "0.0.7",
         "parse-ms": "^2.1.0",
         "quick.db": "^7.0.0-b22",
-        "snekfetch": "^4.0.4",
         "sqlite3": "^4.1.1",
-        "ytdl-core": "^0.29.7",
-        "ytpl": "^0.1.19",
+        "ytdl-core": "^0.29.5",
+        "ytpl": "^0.1.15",
         "ytsearcher": "^1.2.2"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/AlexAnimateMP4/DiscordBot.js"
+        "url": "https://github.com/DiscordBotJs/DiscordBot.Js"
     },
-    "homepage": "https://github.com/AlexAnimateMP4/DiscordBot.js",
+    "homepage": "https://github.com/DiscordBotJs/DiscordBot.Js",
     "keywords": [
         "discord",
         "discord.js",
