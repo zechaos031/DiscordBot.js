@@ -6,8 +6,8 @@ module.exports = {
 	youtubeapikey: process.env.YOUTUBEAPIKEY, // Youtube Api Key
 	logs: "", // Logs Channel ID
 	colorembed: "#F7DF1E", // Couleur du l'embed
-	picturewelcome: "https://i.imgur.com/kL9RmmX.jpg", // Image du message Welcome
-	pictureleave: "https://i.imgur.com/gZDozPk.jpg", // Image du message Leave
+	picturewelcome: "https://i.imgur.com/hw6JlZa.jpg", // Image du message Welcome
+	pictureleave: "https://i.imgur.com/E9tIW2U.jpg", // Image du message Leave
 	creator: "Alex Animate Mp4#2361", // Créateur du bot
 	version: "1.6.0", // Version du bot
 	invitesupport: "https://disboard.org/fr/server/629960788840546304", // Invitation Discord pour le support server
