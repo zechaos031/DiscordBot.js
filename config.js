@@ -1,8 +1,8 @@
 module.exports = {
 	prefix: "+", // Le prefix du bot
 	prefixMusic: "music-", // C'est le prefix pour la musique
-	ownerID: "609174280734900226", // Votre identifiant Discord faire (le prefix définie)user-info pour voir votre ID ou activer le mode développer et copier votre identifiant
-	botToken: "NjEyNjE0NDE2Nzc2NTYwNjcx.XlEQGQ.aubKkPoe6V21HO0FYC2JYyOssJE", // Token du bot ou "process.env.TOKEN" pour Heroku
+	ownerID: process.env.OWNERID, // Votre identifiant Discord faire (le prefix définie)user-info pour voir votre ID ou activer le mode développer et copier votre identifiant
+	botToken: process.env.TOKEN, // Token du bot ou "process.env.TOKEN" pour Heroku
 	youtubeapikey: process.env.YOUTUBEAPIKEY, // Youtube Api Key
 	logs: "", // Logs Channel ID
 	colorembed: "#F7DF1E", // Couleur du l'embed
