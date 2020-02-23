@@ -1450,6 +1450,7 @@ client.on("message", message => {
             .addField(`${guildConf[message.guild.id].prefix}remove-role`, `Commande permettant d'enlever un rôle à un membre`)
             .addField(`${guildConf[message.guild.id].prefix}unban`, `Commande permettant de débannir un membre`)
             .addField(`${guildConf[message.guild.id].prefix}news`, `Commande permettant de recevoir des actualités de DiscordBot.Js`)
+      	    .addField(`${guildConf[message.guild.id].prefix}config-info`, `Commande permettant d'afficher la base de donnée et de la modifier`)
 	  message.channel.send(embed2);
 	  }
 });
@@ -2794,3 +2795,36 @@ client.on('message', async message => {
     message.channel.send(embedpollhelp)
     }
 })
+
+/*Config*/
+client.on("message", message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "config-info") {
+        const embed = new Discord.RichEmbed()
+            .setColor(`${config.colorembed}`)
+            .setTitle('Configurer la base de donnée', true)
+            .addField("Logs", `${guildConf[message.guild.id].logs}`)
+            .setTimestamp()
+            .setFooter('Config Beta Version');
+        message.channel.send(embed)
+        .then(async function (message) {
+            message.react("📄");
+            wait(3000);
+        })
+        client.on('messageReactionAdd', (reaction, user) => {
+            if (reaction.emoji.name === "📄" && user.id !== client.user.id) {
+                guildConf[message.guild.id].logs = "0"
+                message.reply("Les logs sont désactivés")
+          }
+          })
+          client.on('messageReactionRemove', (reaction, user) => {
+            if (reaction.emoji.name === "📄" && user.id !== client.user.id) {
+                guildConf[message.guild.id].logs = "1"
+                message.reply("Les logs sont activés")
+          }
+          })
+    }
+});
