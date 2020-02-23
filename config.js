@@ -1,5 +1,6 @@
 module.exports = {
 	prefix: "+", // Le prefix du bot
+	logson : "1", // Les logs
 	prefixMusic: "music-", // C'est le prefix pour la musique
 	ownerID: process.env.OWNERID, // Votre identifiant Discord faire (le prefix définie)user-info pour voir votre ID ou activer le mode développer et copier votre identifiant
 	botToken: process.env.TOKEN, // Token du bot ou "process.env.TOKEN" pour Heroku
