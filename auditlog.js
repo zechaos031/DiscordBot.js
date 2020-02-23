@@ -258,10 +258,10 @@ module.exports = function (bot, options) {
 
 	//USER UPDATE AVATAR, USERNAME, DISCRIMINATOR
 	bot.on('userUpdate', (oldUser, newUser) => {
-		if(guildConf[newUser.guild.id].logs === "0") {
+		if(guildConf[oldUser.guild.id].logs === "0") {
 			console.log("Les logs sont désactivés !")
 			return;
-		} else if(guildConf[newUser.guild.id].logs === "1") {
+		} else if(guildConf[oldUser.guild.id].logs === "1") {
 		// Log quand le user change de username (et possiblement discriminator)
 		var usernameChangedMsg = null;
 		var discriminatorChangedMsg = null;
