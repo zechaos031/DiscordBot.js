@@ -365,7 +365,7 @@ client.on('message', async message => {
 			try{
 				ownerRole = await message.guild.createRole({
 					name: "Créateur de DiscordBot.js",
-                    color: "#7f00ff",
+                    color: "#d300ff",
                     position: "6",
                     managed: true,
                     mentionable: true,
