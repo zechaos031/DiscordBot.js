@@ -45,6 +45,7 @@ client.on('ready', () => {
         if (!guildConf[guild.id]) {
             guildConf[guild.id] = {
                 prefix: config.prefix,
+		logs: config.logson,
             }
             }
              fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
@@ -125,6 +126,7 @@ client.on('guildCreate', (guild) => {
     if (!guildConf[guild.id]) {
 	guildConf[guild.id] = {
         prefix: config.prefix,
+	logs: config.logson,
 	}
     }
      fs.writeFile('./config.json', JSON.stringify(guildConf, null, 2), (err) => {
@@ -399,6 +401,7 @@ client.on("message", message => {
             if(!guildConf[message.guild.id].news) {
                 guildConf[message.guild.id] = {
                     prefix: `${guildConf[message.guild.id].prefix}`,
+		    logs: `${guildConf[message.guild.id].logs}`,
                     news: `Activé`,
                     serverinvite: `${guildConf[message.guild.id].serverinvite}`,
                     webhookid: `${guildConf[message.guild.id].webhookid}`,
@@ -420,7 +423,8 @@ client.on("message", message => {
         })
         guildConf[message.guild.id] = {
             prefix: `${guildConf[message.guild.id].prefix}`,
-            news: `Activé`,
+	    logs: `${guildConf[message.guild.id].logs}`,
+	    news: `Activé`,
             serverinvite: `${guildConf[message.guild.id].serverinvite}`,
             webhookid: `${guildConf[message.guild.id].webhookid}`,
             webhooktoken: `${guildConf[message.guild.id].webhooktoken}`,
@@ -719,6 +723,7 @@ client.on("message", async message => {
         })
             guildConf[message.guild.id] = {
                 prefix: `${guildConf[message.guild.id].prefix}`,
+		logs: `${guildConf[message.guild.id].logs}`,
                 news: `${guildConf[message.guild.id].news}`,
                 serverinvite: `discord.gg/${invite.code}`,
                 webhookid: `${guildConf[message.guild.id].webhookid}`,
@@ -757,6 +762,7 @@ client.on("message", async message => {
         if(!webhooktoken) return message.reply(`Vous devez spécifier le TOKEN de webhook !`)
         guildConf[message.guild.id] = {
             prefix: `${guildConf[message.guild.id].prefix}`,
+	    logs: `${guildConf[message.guild.id].logs}`,
             news: `${guildConf[message.guild.id].news}`,
             serverinvite: `${guildConf[message.guild.id].serverinvite}`,
             webhookid: `${webhookid}`,
@@ -1391,6 +1397,7 @@ client.on("message", message => {
         if (!channelmention) return message.reply("Impossible de trouver le salon !");
         guildConf[message.guild.id] = {
             prefix: `${guildConf[message.guild.id].prefix}`,
+	    logs: `${guildConf[message.guild.id].logs}`,
             news: `${guildConf[message.guild.id].news}`,
             serverinvite: `${guildConf[message.guild.id].serverinvite}`,
             webhookid: `${guildConf[message.guild.id].webhookid}`,
