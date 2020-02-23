@@ -52,6 +52,7 @@ Invitez le sur votre serveur !
 - +remove-role : Commande permettant d'enlever un rôle à un membre.
 - +unban : Commande permettant de débannir un membre.
 - +news : Commande permettant de recevoir des actualités de DiscordBot.Js.
+- +config-info : Commande permettant d'afficher la base de donnée et de la modifier
 
 ## Autres informations
 
