@@ -70,6 +70,7 @@ const getDefaultChannel = (guild) => {
 const lastChar = (str) => str.split('').reverse().join(',').replace(',', '')[str.length === str.length + 1 ? 1 : 0];
 const emojiList = ['✅','❎'];
 const emojiLetterList = ['🇦','🇧','🇨','🇩','🇪','🇫','🇬','🇭','🇮','🇯','🇰','🇱','🇲','🇳','🇴','🇵','🇶','🇷','🇸','🇹','🇺','🇻','🇼','🇽','🇾','🇿'];
+const logs_name = "📄logs";
 
 function timeConverter(timestamp)
 {
