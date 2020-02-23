@@ -1643,8 +1643,19 @@ client.on('messageDelete', async (message) => {
         			LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return message.reply("Impossible de trouver le salon Logs !");
-        				LogsChannelID.send(embed)
+        			if (!LogsChannelID) {
+                        message.reply("Impossible de trouver le salon Logs !\nJ'ai crée un salon Logs pour suivre toutes les actions de votre serveur.");
+                        const everyoneRole = client.guilds.get(message.guild.id).roles.find(x => x.name === '@everyone');
+                        message.guild.createChannel(logs_name, 'text')
+                        .then(r => {
+                        r.overwritePermissions(message.author.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(client.user.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(everyoneRole, { SEND_MESSAGES: false, VIEW_CHANNEL: false });
+                        r.send(`>>> **IMPORTANT** ne jamais supprimer ou renommer ce salon !\nSi vous renommez le nom ou supprimer ce salon, Vous n'aurez pas accés aux Logs de DiscordBot.Js (sauf si vous configurer les logs dans un autre salon avec la commande ${guildConf[message.guild.id].prefix}logs-channel)`)
+                        })
+                    } else if(LogsChannelID) {
+                        LogsChannelID.send(embed)
+                    }
         		}
 })
 
@@ -1672,8 +1683,19 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
         			LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return oldMessage.reply("Impossible de trouver le salon Logs !");
-        				LogsChannelID.send(embed)
+        			if (!LogsChannelID) {
+                        message.reply("Impossible de trouver le salon Logs !\nJ'ai crée un salon Logs pour suivre toutes les actions de votre serveur.");
+                        const everyoneRole = client.guilds.get(message.guild.id).roles.find(x => x.name === '@everyone');
+                        message.guild.createChannel(logs_name, 'text')
+                        .then(r => {
+                        r.overwritePermissions(message.author.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(client.user.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(everyoneRole, { SEND_MESSAGES: false, VIEW_CHANNEL: false });
+                        r.send(`>>> **IMPORTANT** ne jamais supprimer ou renommer ce salon !\nSi vous renommez le nom ou supprimer ce salon, Vous n'aurez pas accés aux Logs de DiscordBot.Js (sauf si vous configurer les logs dans un autre salon avec la commande ${guildConf[message.guild.id].prefix}logs-channel)`)
+                        })
+                    } else if(LogsChannelID) {
+                        LogsChannelID.send(embed)
+                    }
         		}
 })
 
@@ -1746,8 +1768,19 @@ client.on('channelDelete', async (channel, message) => {
         			LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return channel.reply("Impossible de trouver le salon Logs !");
-        				LogsChannelID.send(embed)
+        			if (!LogsChannelID) {
+                        channel.send("Impossible de trouver le salon Logs !\nJ'ai crée un salon Logs pour suivre toutes les actions de votre serveur.");
+                        const everyoneRole = client.guilds.get(channel.guild.id).roles.find(x => x.name === '@everyone');
+                        channel.guild.createChannel(logs_name, 'text')
+                        .then(r => {
+                        r.overwritePermissions(channel.author.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(client.user.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(everyoneRole, { SEND_MESSAGES: false, VIEW_CHANNEL: false });
+                        r.send(`>>> **IMPORTANT** ne jamais supprimer ou renommer ce salon !\nSi vous renommez le nom ou supprimer ce salon, Vous n'aurez pas accés aux Logs de DiscordBot.Js (sauf si vous configurer les logs dans un autre salon avec la commande ${guildConf[message.guild.id].prefix}logs-channel)`)
+                        })
+                    } else if(LogsChannelID) {
+                        LogsChannelID.send(embed)
+                    }
         		}
 })
 
@@ -1772,8 +1805,19 @@ client.on('guildBanAdd', async (guild, user) => {
                         }, 1000);
         		}
         		else if(!LogsChannel) {
-        			if (!LogsChannelID) return guild.reply("Impossible de trouver le salon Logs !");
+        			if (!LogsChannelID) {
+                        guild.reply("Impossible de trouver le salon Logs !\nJ'ai crée un salon Logs pour suivre toutes les actions de votre serveur.");
+                        const everyoneRole = client.guilds.get(guild.id).roles.find(x => x.name === '@everyone');
+                        guild.createChannel(logs_name, 'text')
+                        .then(r => {
+                        r.overwritePermissions(guild.author.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(client.user.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(everyoneRole, { SEND_MESSAGES: false, VIEW_CHANNEL: false });
+                        r.send(`>>> **IMPORTANT** ne jamais supprimer ou renommer ce salon !\nSi vous renommez le nom ou supprimer ce salon, Vous n'aurez pas accés aux Logs de DiscordBot.Js (sauf si vous configurer les logs dans un autre salon avec la commande ${guildConf[message.guild.id].prefix}logs-channel)`)
+                        })
+                    } else if(LogsChannelID) {
                         LogsChannelID.send(embed)
+                    }
                 }
 })
 
@@ -1795,31 +1839,19 @@ client.on('guildBanRemove', async (guild, user) => {
                     LogsChannel.send(embed)
         		}
         		else if(!LogsChannel) {
-                    if (!LogsChannelID) return user.reply("Impossible de trouver le salon Logs !");
+                    if (!LogsChannelID) {
+                        guild.reply("Impossible de trouver le salon Logs !\nJ'ai crée un salon Logs pour suivre toutes les actions de votre serveur.");
+                        const everyoneRole = client.guilds.get(guild.id).roles.find(x => x.name === '@everyone');
+                        guild.createChannel(logs_name, 'text')
+                        .then(r => {
+                        r.overwritePermissions(guild.author.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(client.user.id, { SEND_MESSAGES: true, VIEW_CHANNEL: true });
+                        r.overwritePermissions(everyoneRole, { SEND_MESSAGES: false, VIEW_CHANNEL: false });
+                        r.send(`>>> **IMPORTANT** ne jamais supprimer ou renommer ce salon !\nSi vous renommez le nom ou supprimer ce salon, Vous n'aurez pas accés aux Logs de DiscordBot.Js (sauf si vous configurer les logs dans un autre salon avec la commande ${guildConf[message.guild.id].prefix}logs-channel)`)
+                        })
+                    } else if(LogsChannelID) {
                         LogsChannelID.send(embed)
-                }
-})
-
-client.on('guildBanRemove', async (guild, user) => {
-    let logs = await guild.fetchAuditLogs({type: 23});
-    let entry = logs.entries.first();
-	const embed = new Discord.RichEmbed()
-	  .setColor(`${config.colorembed}`)
-          .setTitle('Logs Membre Débannie')
-	  .addField("Membre", user)
-          .addField("Membre ID", user.id)
-          .addField("Auteur", entry.executor)
-          .addField("Auteur ID", entry.executor.id)
-		  .setTimestamp()
-		  .setFooter('Logs Beta Version');
-		  const LogsChannel = guild.channels.find(channel => channel.name === "📄logs");
-        	  const LogsChannelID = guild.channels.get(guildConf[guild.id].logs_channel)
-        		if (LogsChannel) {
-                    LogsChannel.send(embed)
-        		}
-        		else if(!LogsChannel) {
-                    if (!LogsChannelID) return user.reply("Impossible de trouver le salon Logs !");
-                        LogsChannelID.send(embed)
+                    }
                 }
 })
 
