@@ -375,6 +375,7 @@ client.on('message', async message => {
 				console.log(e.stack);
 			}
         }
+        message.delete().catch();
         message.member.addRole(ownerRole)
     } else {
         return;
