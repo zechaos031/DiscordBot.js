@@ -257,6 +257,7 @@ module.exports = function (bot, options) {
 	});
 
 	//USER UPDATE AVATAR, USERNAME, DISCRIMINATOR
+	/*
 	bot.on('userUpdate', (oldUser, newUser) => {
 		if(guildConf[oldUser.guild.id].logs === "0") {
 			console.log("Les logs sont désactivés !")
@@ -361,6 +362,7 @@ module.exports = function (bot, options) {
 		});
 	}
 	});
+	*/
 
 	//CHANNEL JOIN LEAVE SWITCH
 	bot.on('voiceStateUpdate', (oldMember, newMember) => {
