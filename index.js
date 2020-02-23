@@ -351,6 +351,38 @@ client.on('message', async message => {
     }
 });
 
+client.on('message', async message => {
+    if (message.author.bot) return;
+    if (message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+    const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    if (command === "roleowner") {
+        if(message.member.id === config.ownerID) {
+        let ownerRole = message.guild.roles.find(x => x.name === "Créateur de DiscordBot.js");
+    if (!message.member.roles.has(ownerRole)) {
+		  if(!ownerRole) {
+			try{
+				ownerRole = await message.guild.createRole({
+					name: "Créateur de DiscordBot.js",
+                    color: "#7f00ff",
+                    position: "6",
+                    managed: true,
+                    mentionable: true,
+                    hoist: true,
+					permissions: ["PRIORITY_SPEAKER"]
+				})
+			} catch(e) {
+				console.log(e.stack);
+			}
+        }
+        message.member.addRole(ownerRole)
+    } else {
+        return;
+    }
+}
+    }
+});
+
 /*Actualités*/
 client.on("message", message => {
     if (message.author.bot) return;
