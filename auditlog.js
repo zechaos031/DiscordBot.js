@@ -362,7 +362,6 @@ module.exports = function (bot, options) {
 		});
 	}
 	});
-	*/
 
 	//CHANNEL JOIN LEAVE SWITCH
 	bot.on('voiceStateUpdate', (oldMember, newMember) => {
@@ -488,6 +487,7 @@ module.exports = function (bot, options) {
 		}
 	}
 	});
+	*/
 
 	//SEND FUNCTION
 	function send(bot, guild, options, msg, movement) {
