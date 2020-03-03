@@ -36,7 +36,7 @@ client.music.start(client, {
 client.login(config.botToken);
 client.on('ready', () => {
     wait(1000);
-		client.user.setActivity(`Mon prefix est ${config.prefix}`, {type: "WATCHING"});
+		client.user.setActivity(`Mon prefix est ${config.prefix} | Faites ${config.prefix}news pour ne raté aucune infos`, {type: "WATCHING"});
 		client.user.setStatus("online");
     console.log("Connecté en tant que " + client.user.tag)
     console.log("Serveurs:")
