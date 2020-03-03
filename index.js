@@ -109,6 +109,10 @@ let embed_time = ""
 let embed_footer = ""
 let embed_footer_picture = ""
 
+let news_embed_description = ""
+let news_embed_thumbnail = ""
+let news_embed_picture = ""
+
 let emoji1id = ""
 let emoji2id = ""
 let emoji1text = ""
@@ -434,8 +438,40 @@ client.on("message", message => {
              if (err) console.log(err)
         })
         }
+	if(command === "news-description") {
+            if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            news_embed_description = args.join(` `);
+              message.channel.send(`La description de l'embed est ${news_embed_description}`)
+        }
+	if(command === "news-thumbnail") {
+            if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            news_embed_thumbnail = args.join(` `);
+              message.channel.send(`Le thumbnail de l'embed est ${news_embed_thumbnail}`)
+        }
+	if(command === "news-picture") {
+            if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            news_embed_picture = args.join(` `);
+              message.channel.send(`L'image de l'embed est ${news_embed_picture}`)
+        }
+	if(command === "news-reset") {
+            if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            news_embed_description = ""
+            news_embed_thumbnail = ""
+            news_embed_picture = ""
+              message.channel.send(`Les valeurs ont bien été réinitialiser !`)
+        }
         if(command === "send-news") {
-            if(message.author.id === config.ownerID) return message.reply("sa fonctionne !")
+	if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            const embed = new Discord.RichEmbed()
+            .setColor(`${config.colorembed}`)
+            .setAuthor(message.author.tag, message.author.avatarURL || "")
+            .setThumbnail(`${news_embed_thumbnail || ""}`)
+            .setTitle('Actualités DiscordBot.Js')
+            .setDescription(`${news_embed_description || ""}`)
+            .setImage(`${news_embed_picture || ""}`)
+            .setTimestamp()
+            .setFooter('Actualités DiscordBot.Js Release Version');
+        client.channels.findAll('name', 'actualités-discordbotjs').map(channel => channel.send({embed}))
         }
 });
 
