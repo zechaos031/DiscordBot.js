@@ -1,5 +1,5 @@
 ## DiscordBot.js
-> DiscordBot.js est un exemple de bot avancée - is a french bot !
+> DiscordBot.js est un exemple de bot avancée
 
 <div>
   <p>
