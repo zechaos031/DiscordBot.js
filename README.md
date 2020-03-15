@@ -13,6 +13,9 @@
 Tu veut un bot qui te fais de la pub sur touts les serveurs qui sont connectés au bot ?
 Eh bien il le fait !
 
+(Je tiens à préciser que les pubs dans aucun cas ne seront admises par message privés !
+Les pubs sont faites à partir d'une commande +server-list qui repertorie touts les serveurs connectés et si le propriétaire estimes que sont serveur peut faire office de pub alors il fait la commande +server-invite et l'invitation du serveur sera afficher dans la commande.)
+
 DiscordBot.Js te permet de faire pleins de chose avec, comme gérer la modération de ton serveur, te donner pleins d'informations sur ton serveur, utiliser des fonctionnalités Discord avec de simple commande...
 
 Alors vous attendez quoi ?
