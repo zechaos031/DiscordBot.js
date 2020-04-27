@@ -36,8 +36,10 @@ client.music.start(client, {
 client.login(config.botToken);
 client.on('ready', () => {
     wait(1000);
-		client.user.setActivity(`Mon prefix est ${config.prefix} | Faites ${config.prefix}news pour ne raté aucune infos`, {type: "WATCHING"});
-		client.user.setStatus("online");
+    client.user.setActivity(`Mon prefix est ${config.prefix}`, { type: "WATCHING" });
+    let activities = [`Faites ${config.prefix}news pour avoir les actualités de DiscordBot.js`, `Faites ${config.prefix}canary pour inviter DiscordBot.js Canary dans vos serveurs`], i = 0;
+    setInterval(() => client.user.setActivity(`Mon prefix est ${config.prefix} | ${activities[i++ % activities.length]}`, { type: "WATCHING" }), 15000)
+    client.user.setStatus("online");
     console.log("Connecté en tant que " + client.user.tag)
     console.log("Serveurs:")
     client.guilds.forEach((guild) => {
@@ -2641,4 +2643,22 @@ client.on("message", message => {
           }
           })
     }
+});
+
+/*DiscordBot.js Canary*/
+client.on("message", message => {
+    if(!message.guild || message.author.bot) return;
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+	const command = args.shift().toLowerCase();
+	if(command === "canary") {
+	  const embed = new Discord.RichEmbed()
+        .setColor(`${config.colorembed}`)
+        .setAuthor(message.author.tag, message.author.avatarURL || "")
+	    .setTitle(`DiscordBot.js Canary`)
+        .setDescription(`Inviter DiscordBot.js Canary dans vos serveurs pour avoir en temps réelle les changements de la mise à jour (1.6.5) de DiscordBot.js.\nLien de l'invitation: [DiscordBot.js Canary](${config.CANARY})`)
+        .setTimestamp()
+        .setFooter(`${client.user.tag}`, client.user.displayAvatarURL);
+      message.channel.send(embed);
+	  }
 });
