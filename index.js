@@ -1496,6 +1496,7 @@ client.on("message", message => {
             .addField(`${guildConf[message.guild.id].prefix}unban`, `Commande permettant de débannir un membre`)
             .addField(`${guildConf[message.guild.id].prefix}news`, `Commande permettant de recevoir des actualités de DiscordBot.Js`)
       	    .addField(`${guildConf[message.guild.id].prefix}config-info`, `Commande permettant d'afficher la base de donnée et de la modifier`)
+      	    .addField(`${guildConf[message.guild.id].prefix}canary`, `Commande permettant d'inviter DiscordBot.js dans vos serveurs !`)
 	  message.channel.send(embed2);
 	  }
 });
