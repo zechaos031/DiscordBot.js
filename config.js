@@ -14,7 +14,7 @@ module.exports = {
 	invitesupport: "https://disboard.org/fr/server/629960788840546304", // Invitation Discord pour le support server
 	videopresentation: "https://youtu.be/cIFhTOgT4Oc", // Vidéo présentation (peut être mise à jour !)
 	langue: "french", // La langue du bot
-	CANARY: "https://discordbotjs.github.io/DiscordBot.js-Website.io/Canary.html",
+	CANARY: "https://discordbotjs.github.io/Canary.html",
 	// Reaction Role
 	deleteSetupCMD: false, // Si cela est activé la commande sera supprimé après utilisation ** fortement déconseillé **
 	initialMessage: `**Réagissez aux messages ci-dessous pour recevoir le rôle associé. Si vous souhaitez supprimer le rôle, supprimez simplement votre réaction !**`, // Message par défaut de l'embed
