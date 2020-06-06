@@ -12,4 +12,5 @@ if NOT EXIST node_modules (
 cls
 echo Le bot va démarrer...
 node index.js
+node --trace-warnings index.js
 pause
