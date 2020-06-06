@@ -40,15 +40,15 @@ module.exports = function (bot, options) {
 		if(message.content === "") message.content = "Visualisation Impossible"
 		const embed = new Discord.RichEmbed()
 		  .setColor(`${config.colorembed}`)
-		  .setTitle('Logs Message Supprimer')
+		  .setTitle('Logs - Message supprimé')
 		  .addField("Message", `${message.content.replace(/`/g,"'")}`)
-		  .addField("Message ID", `${message.id}`)
+		  .addField("ID du Message", `${message.id}`)
 		  .addField("Auteur", `<@${message.member.user.id}>`)
-		  .addField("Auteur ID", `${message.member.user.id}`)
+		  .addField("ID de l'Auteur", `${message.member.user.id}`)
 		  .addField("Salon", `<#${message.channel.id}>`)
-		  .addField("Salon ID", `${message.channel.id}`)
+		  .addField("ID du Salon", `${message.channel.id}`)
 		  .setTimestamp()
-		  .setFooter('Logs Beta Version');
+		  .setFooter('Logs - Beta version');
 		send(bot, message.member.guild, options, embed, "messageDelete")
 		}
 	});
@@ -63,17 +63,17 @@ module.exports = function (bot, options) {
 		if (oldMessage.content === newMessage.content) return;
 		const embed = new Discord.RichEmbed()
 		  .setColor(`${config.colorembed}`)
-		  .setTitle('Logs Message Editer')
-		  .addField("Nouveau Message", `${newMessage.content.replace(/`/g,"'")}`)
-		  .addField("Nouveau Message ID", `${newMessage.id}`)
-		  .addField("Ancien Message", `${oldMessage.content.replace(/`/g,"'")}`)
-		  .addField("Ancien Message ID", `${oldMessage.id}`)
+		  .setTitle('Logs - Message édité')
+		  .addField("Nouveau message", `${newMessage.content.replace(/`/g,"'")}`)
+		  .addField("ID du nouveau", `${newMessage.id}`)
+		  .addField("Ancien message", `${oldMessage.content.replace(/`/g,"'")}`)
+		  .addField("ID de l'ancien message", `${oldMessage.id}`)
 		  .addField("Auteur", `<@${newMessage.member.user.id}>`)
-		  .addField("Auteur ID", `${newMessage.member.user.id}`)
+		  .addField("ID de l'auteur", `${newMessage.member.user.id}`)
 		  .addField("Salon", `<#${newMessage.channel.id}>`)
-		  .addField("Salon ID", `${newMessage.channel.id}`)
+		  .addField("ID du salon", `${newMessage.channel.id}`)
 		  .setTimestamp()
-		  .setFooter('Logs Beta Version');
+		  .setFooter('Logs - Beta version');
 		send(bot, newMessage.member.guild, options, embed, "messageUpdate")
 		}
 	});
@@ -96,17 +96,17 @@ module.exports = function (bot, options) {
 		let entry = logs.entries.first();
 		const embed = new Discord.RichEmbed()
 		  .setColor(`${config.colorembed}`)
-		  .setTitle('Logs Salon Ajoutés')
+		  .setTitle('Logs - Salon ajouté')
 	  	  .addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
           .addField("ID", channel.id)
           .addField("Crée le", timeConverter(channel.createdAt))
-          .addField("NSFW", channel.nsfw ? 'Oui' : 'Non')
+          .addField("NSFW ?", channel.nsfw ? 'Oui' : 'Non')
           .addField("Catégories", channel.parent ? channel.parent.name : 'Aucun')
           .addField("Type", channelTypes[channel.type])
-          .addField("Auteur", entry.executor)
-          .addField("Auteur ID", entry.executor.id)
+          .addField("Créé par", entry.executor)
+          .addField("ID du créateur de ce salon", entry.executor.id)
 		  .setTimestamp()
-		  .setFooter('Logs Beta Version');
+		  .setFooter('Logs - Beta version');
 		send(bot, channel.guild, options, embed, "channelCreate")
 	}
 	});
@@ -129,16 +129,16 @@ module.exports = function (bot, options) {
 		let entry = logs.entries.first();
 		const embed = new Discord.RichEmbed()
 		.setColor(`${config.colorembed}`)
-		.setTitle('Logs Salon Supprimés')
+		.setTitle('Logs - Salon supprimé')
 		.addField("Nom du salon", channel.type === 'dm' ? `<@${channel.recipient.username}>` : channel.name)
-		.addField("ID", channel.id)
+		.addField("ID du salon", channel.id)
 		.addField("Crée le", timeConverter(channel.createdAt))
-		.addField("NSFW", channel.nsfw ? 'Oui' : 'Non')
+		.addField("NSFW ?", channel.nsfw ? 'Oui' : 'Non')
 		.addField("Catégories", channel.parent ? channel.parent.name : 'Aucun')
 		.addField("Type", channelTypes[channel.type])
 		.addField("Topic", channel.topic || "Aucun")
-		.addField("Auteur", entry.executor)
-		.addField("Auteur ID", entry.executor.id)
+		.addField("Créé par", entry.executor)
+		.addField("ID du créateur de ce salon", entry.executor.id)
 		.setTimestamp()
 		.setFooter('Logs Beta Version');
 		send(bot, channel.guild, options, embed, "channelDelete")
@@ -155,14 +155,14 @@ module.exports = function (bot, options) {
 		let entry = logs.entries.first();
 		const embed = new Discord.RichEmbed()
 		  .setColor(`${config.colorembed}`)
-          .setTitle('Logs Membre Bannie')
+          .setTitle('Logs - Membre banni(e)')
 	  	  .addField("Membre", `<@${banuser.id}>`)
-          .addField("Membre ID", `${banuser.id}`)
-          .addField("Auteur", entry.executor)
-          .addField("Auteur ID", entry.executor.id)
+          .addField("ID du membre", `${banuser.id}`)
+          .addField("Auteur(e) du banissement", entry.executor)
+          .addField("ID de l'auteur(e) du banissement", entry.executor.id)
           .addField("Raison", entry.reason || "Aucun")
 		  .setTimestamp()
-		  .setFooter('Logs Beta Version');
+		  .setFooter('Logs - Beta version');
 		send(bot, banguild, options, embed, "guildBanAdd")
 		}
 	});
@@ -177,14 +177,14 @@ module.exports = function (bot, options) {
 		let entry = logs.entries.first();
 		const embed = new Discord.RichEmbed()
 		  .setColor(`${config.colorembed}`)
-          .setTitle('Logs Membre Débannie')
+          .setTitle('Logs - Membre débanni(e)')
 	  	  .addField("Membre", `<@${banuser.id}>`)
-          .addField("Membre ID", `${banuser.id}`)
-          .addField("Auteur", entry.executor)
-          .addField("Auteur ID", entry.executor.id)
+          .addField("ID du Membre", `${banuser.id}`)
+          .addField("Auteur du banissement", entry.executor)
+          .addField("ID de l'auteur du banissement", entry.executor.id)
           .addField("Raison", entry.reason || "Aucun")
 		  .setTimestamp()
-		  .setFooter('Logs Beta Version');
+		  .setFooter('Logs - Beta version');
 		send(bot, banguild, options, embed, "guildBanRemove")
 		}
 	});
@@ -198,12 +198,12 @@ module.exports = function (bot, options) {
 		if (oldMember.nickname != newMember.nickname) {
 			const embed1 = new Discord.RichEmbed()
 		    .setColor(`${config.colorembed}`)
-            .setTitle('Logs Membre Pseudo Mise à jour')
+            .setTitle('Logs - Pseudo d\'un(e) membre mise à jour')
 	  	    .addField("Nouveau Pseudo", `<@${newMember.user.id}>`)
             .addField("Ancien Pseudo", `${oldMember.nickname || oldMember.user.tag}`)
             .addField("Pseudo ID", `${newMember.user.id}`)
 		    .setTimestamp()
-		    .setFooter('Logs Beta Version');
+		    .setFooter('Logs - Beta version');
 			send(bot, newMember.guild, options, embed1, "guildMemberUpdate")
 		}
 
@@ -243,13 +243,13 @@ module.exports = function (bot, options) {
 				}
 				const embed2 = new Discord.RichEmbed()
 		  		.setColor(`${config.colorembed}`)
-          		.setTitle('Logs Membre Rôles Mise à jour')
+          		.setTitle('Logs - Rôles d\'un(e) membre mise à jour')
 	  	  		.addField("Membre", `<@${newMember.user.id}>`)
           		.addField("Membre ID", `${newMember.user.id}`)
-          		.addField("Rôle Ajoutés", `${roleadded || "Aucun"}`)
-          		.addField("Rôle Enlever", `${roleremoved || "Aucun"}`)
+          		.addField("Rôle ajouté(s)", `${roleadded || "Aucun"}`)
+          		.addField("Rôle enlevé(s)", `${roleremoved || "Aucun"}`)
 		  		.setTimestamp()
-		  		.setFooter('Logs Beta Version');
+		  		.setFooter('Logs - Beta version');
 				send(bot, newMember.guild, options, embed2, "guildMemberUpdate")
 
 			}
