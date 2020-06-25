@@ -2676,3 +2676,15 @@ client.on("message", message => {
       message.channel.send(embed);
 	  }
 });
+
+/*Test Update*/
+client.on("message", message => {
+    if(!message.guild || message.author.bot) return;
+	if(message.content.indexOf(guildConf[message.guild.id].prefix) !== 0) return;
+	const args = message.content.slice(guildConf[message.guild.id].prefix.length).trim().split(/ +/g);
+	const command = args.shift().toLowerCase();
+	if(command === "testUpdate") {
+		if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+		return message.reply('Le bot est bien mise à jour ! #1')
+	  }
+});
