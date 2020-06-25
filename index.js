@@ -462,13 +462,26 @@ client.on("message", message => {
             news_embed_picture = ""
               message.channel.send(`Les valeurs ont bien été réinitialiser !`)
         }
-        if(command === "send-news") {
+        if(command === "send-news-dbjs") {
 	if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
             const embed = new Discord.RichEmbed()
             .setColor(`${config.colorembed}`)
             .setAuthor(message.author.tag, message.author.avatarURL || "")
             .setThumbnail(`${news_embed_thumbnail || ""}`)
-            .setTitle('Actualités DiscordBot.Js')
+            .setTitle("Actualités DiscordBot.Js")
+            .setDescription(`${news_embed_description || ""}`)
+            .setImage(`${news_embed_picture || ""}`)
+            .setTimestamp()
+            .setFooter('Actualités DiscordBot.Js Release Version');
+        client.channels.findAll('name', 'actualités-discordbotjs').map(channel => channel.send({embed}))
+        }
+	if(command === "send-news-dbjsc") {
+	if (message.author.id !== config.ownerID) return message.reply("Désolé, Vous n'avez pas les permissions !")
+            const embed = new Discord.RichEmbed()
+            .setColor(`${config.colorembed}`)
+            .setAuthor(message.author.tag, message.author.avatarURL || "")
+            .setThumbnail(`${news_embed_thumbnail || ""}`)
+            .setTitle("Actualités DiscordBot.js Canary")
             .setDescription(`${news_embed_description || ""}`)
             .setImage(`${news_embed_picture || ""}`)
             .setTimestamp()
